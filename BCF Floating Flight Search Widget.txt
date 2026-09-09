@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         TBC Floating Flight Search Widget
-// @namespace    tbc-flight-widget
+// @name         BCF Floating Flight Search Widget
+// @namespace    bcf-flight-widget
 // @version      12.2
 // @description  Floating flight search helper with smooth circle minimize/expand, draggable bubble & full PNR/Itinerary tools
-// @match        https://bo.travelbusinessclass.com/*
+// @match        https://bo.bcflights.com/*
 // @grant        none
 // ==/UserScript==
 
@@ -987,7 +987,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Disclaimers & Scripts - TBC</title>
+<title>Disclaimers & Scripts - BCF</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#0b111e;--card:#151e2d;--line:#2a364a;--ink:#f8fafc;--mid:#94a3b8;
@@ -1039,14 +1039,14 @@
 <div class="wrap">
   <div class="header">
     <div class="brand">
-      <div class="logo">tbc</div>
+      <div class="logo">bcf</div>
       <div><h1>Disclaimers & Scripts</h1><div class="sub">1-Click Copy Templates</div></div>
     </div>
   </div>
   <div class="panel">
     <div class="tabs">
       <button class="tab-btn active" onclick="openTab(event, 'discounts')">Discounts</button>
-      <button class="tab-btn" onclick="openTab(event, 'abt')">ABT Award</button>
+      <button class="tab-btn" onclick="openTab(event, 'lfs')">LFS Award</button>
       <button class="tab-btn" onclick="openTab(event, 'revenue')">Revenue ELR / FRT</button>
     </div>
 
@@ -1071,13 +1071,13 @@ By confirming your booking, you agree to these conditions.</div>
       </div>
     </div>
 
-    <!-- ABT AWARD TAB -->
-    <div id="abt" class="tab-content">
+    <!-- LFS AWARD TAB -->
+    <div id="lfs" class="tab-content">
       <div>
         <span class="block-title">Award Ticket [Only over the phone]</span>
         <div class="copy-block" onclick="copyText(this)">Dear Customer,
 
-Thank you for booking with airbusinesstravel.com
+Thank you for booking with lux-flights.com
 
 I would like to mention the following very important points.
 
@@ -1157,13 +1157,13 @@ function copyText(el) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GDS PNR Creation Guide - TBC</title>
+<title>GDS PNR Creation Guide - BCF</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-body: #0b111e; --bg-card: #151e2d; --bg-sub: #101827;
     --text-main: #f8fafc; --text-muted: #94a3b8; --border: #2a364a;
-    --tbc-plum: #e8447a; --tbc-gradient: linear-gradient(135deg, #e32965 0%, #9e143d 100%);
+    --bcf-plum: #e8447a; --bcf-gradient: linear-gradient(135deg, #e32965 0%, #9e143d 100%);
     --code-bg: #090e17; --code-border: #1e293b; --code-text: #38bdf8;
     --accent-blue: #6366f1; --tag-bg: rgba(99, 102, 241, 0.15);
   }
@@ -1189,7 +1189,7 @@ function copyText(el) {
   }
   .brand-group { display: flex; align-items: center; gap: 12px; }
   .logo-badge {
-    background: var(--tbc-gradient);
+    background: var(--bcf-gradient);
     color: #fff;
     font-weight: 800;
     font-size: 22px;
@@ -1220,7 +1220,7 @@ function copyText(el) {
   }
   .builder-title { font-size: 13px; font-weight: 800; color: #818cf8; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
   .btn-add-pax {
-    background: var(--tbc-gradient); color: #fff; border: none; border-radius: 7px;
+    background: var(--bcf-gradient); color: #fff; border: none; border-radius: 7px;
     padding: 5px 12px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;
   }
   .btn-add-pax:hover { filter: brightness(1.15); }
@@ -1262,7 +1262,7 @@ function copyText(el) {
     border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 12.5px; outline: none;
     font-family: inherit; transition: border-color 0.15s;
   }
-  .search-bar:focus { border-color: var(--tbc-plum); }
+  .search-bar:focus { border-color: var(--bcf-plum); }
   .intro-card {
     background: linear-gradient(135deg, rgba(227, 41, 101, 0.08), rgba(99, 102, 241, 0.08));
     border: 1px solid var(--border);
@@ -1282,7 +1282,7 @@ function copyText(el) {
   .step-card:hover { border-color: rgba(99, 102, 241, 0.4); }
   .step-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
   .step-num {
-    background: var(--tbc-gradient); color: #fff; font-weight: 800; font-size: 12px;
+    background: var(--bcf-gradient); color: #fff; font-weight: 800; font-size: 12px;
     width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .step-title { font-size: 14px; font-weight: 700; color: #fff; }
@@ -1301,11 +1301,11 @@ function copyText(el) {
     padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; cursor: pointer;
     font-family: 'Inter', sans-serif; flex-shrink: 0; transition: 0.15s; margin-left: 8px;
   }
-  .code-block:hover .copy-btn, .builder-output:hover .copy-btn { background: var(--tbc-gradient); color: #fff; border-color: transparent; }
-  .note-box { background: var(--bg-sub); border-left: 3px solid var(--tbc-plum); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 11.5px; color: #cbd5e1; margin-top: 4px; }
+  .code-block:hover .copy-btn, .builder-output:hover .copy-btn { background: var(--bcf-gradient); color: #fff; border-color: transparent; }
+  .note-box { background: var(--bg-sub); border-left: 3px solid var(--bcf-plum); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 11.5px; color: #cbd5e1; margin-top: 4px; }
   .alert-box { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: #fde68a; padding: 10px 14px; border-radius: 8px; font-size: 12px; margin-top: 6px; }
   .toast {
-    position: fixed; bottom: 20px; right: 20px; background: var(--tbc-gradient); color: #fff;
+    position: fixed; bottom: 20px; right: 20px; background: var(--bcf-gradient); color: #fff;
     padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;
     box-shadow: 0 6px 20px rgba(0,0,0,0.4); opacity: 0; pointer-events: none;
     transition: opacity 0.2s, transform 0.2s; transform: translateY(10px);
@@ -1317,7 +1317,7 @@ function copyText(el) {
 <div class="container">
   <div class="header">
     <div class="brand-group">
-      <div class="logo-badge">tbc</div>
+      <div class="logo-badge">bcf</div>
       <div class="title-group">
         <h1>How to Create a PNR in GDS</h1>
         <p>Standard Operating Procedure</p>
@@ -1424,7 +1424,7 @@ function copyText(el) {
       <div class="step-content">
         <p>For some airlines (e.g., <strong>TK</strong>), adding CTCR remarks (contact details) is mandatory:</p>
         <p style="font-size:11.5px; font-weight:700; color:#cbd5e1;">Email:</p>
-        <div class="code-block" onclick="copySnippet('3CTCE/SCHEDULE.CHANGES//TRAVELBUSINESSCLASS.COM-1.1')"><span class="code-text-val">3CTCE/SCHEDULE.CHANGES//TRAVELBUSINESSCLASS.COM-1.1</span><button class="copy-btn">Copy</button></div>
+        <div class="code-block" onclick="copySnippet('3CTCE/SCHEDULE.CHANGES//BCFLIGHTS.COM-1.1')"><span class="code-text-val">3CTCE/SCHEDULE.CHANGES//BCFLIGHTS.COM-1.1</span><button class="copy-btn">Copy</button></div>
         <p style="font-size:11.5px; font-weight:700; color:#cbd5e1; margin-top:4px;">Phone number:</p>
         <div class="code-block" onclick="copySnippet('3CTCM/8558551221-1.1')"><span class="code-text-val">3CTCM/8558551221-1.1</span><button class="copy-btn">Copy</button></div>
         <p style="font-size:11.5px; color:#64748b;">(Replace passenger reference -1.1 as per the passenger order in the booking.)</p>
@@ -1588,7 +1588,7 @@ function copyText(el) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TBC VIP Itinerary Maker</title>
+<title>BCF VIP Itinerary Maker</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
 <style>
@@ -1752,10 +1752,10 @@ function copyText(el) {
 <div class="wrap">
   <div class="top">
     <div class="top-l">
-      <h1 id="brandTitle">TBC VIP Itinerary Maker</h1>
+      <h1 id="brandTitle">BCF VIP Itinerary Maker</h1>
       <div class="brandtabs">
-        <button id="bt-tbc" class="on" onclick="setBrand('tbc')">TBC</button>
-        <button id="bt-abt" onclick="setBrand('abt')">ABT</button>
+        <button id="bt-bcf" class="on" onclick="setBrand('bcf')">BCF</button>
+        <button id="bt-lfs" onclick="setBrand('lfs')">LFS</button>
       </div>
     </div>
     <button class="ghost" onclick="toggleDark()">Dark mode</button>
@@ -2032,17 +2032,17 @@ function parse(raw){
 }
 /* ---------- branding ---------- */
 var BRANDS = {
-  tbc: {
-    name:'TBC', mark:'tbc', company:'Travel Business Class',
-    domain:'travelbusinessclass.com', title:'TBC VIP Itinerary Maker',
+  bcf: {
+    name:'BCF', mark:'bcf', company:'BCFlights',
+    domain:'bcflights.com', title:'BCF VIP Itinerary Maker',
     light:{ plum:'#8c1238', grad:'linear-gradient(135deg,#a31649 0%,#750f2e 100%)' },
     dark :{ plum:'#e8447a', grad:'linear-gradient(135deg,#e32965 0%,#9e143d 100%)',
             bg:'#0b111e', card:'#151e2d', soft:'#101827',
             line:'#2a364a', rule:'#334155', chip:'#0d1524' }
   },
-  abt: {
-    name:'ABT', mark:'abt', company:'Air Business Travel',
-    domain:'airbusinesstravel.com', title:'ABT VIP Itinerary Maker',
+  lfs: {
+    name:'LFS', mark:'lfs', company:'Lux Flights',
+    domain:'lux-flights.com', title:'LFS VIP Itinerary Maker',
     light:{ plum:'#7d0a94', grad:'linear-gradient(135deg,#980098 0%,#470865 100%)' },
     dark :{ plum:'#d96ae8', grad:'linear-gradient(135deg,#b302b3 0%,#5a0a7a 100%)',
             bg:'#140720', card:'#1e0f2b', soft:'#180b24',
@@ -2050,7 +2050,7 @@ var BRANDS = {
   }
 };
 var VARKEYS = ['bg','card','soft','line','rule','plum','grad','chip'];
-var brand = 'tbc';
+var brand = 'bcf';
 function B(){ return BRANDS[brand]; }
 function setBrand(k){
   if (!BRANDS[k]) return;
@@ -2066,9 +2066,9 @@ function paint(){
   Object.keys(v).forEach(function(k){ st.setProperty('--' + k, v[k]); });
   document.title = b.title;
   var t = document.getElementById('brandTitle'); if (t) t.textContent = b.title;
-  var bt = document.getElementById('bt-tbc'), ba = document.getElementById('bt-abt');
-  if (bt) bt.className = (brand === 'tbc' ? 'on' : '');
-  if (ba) ba.className = (brand === 'abt' ? 'on' : '');
+  var bt = document.getElementById('bt-bcf'), ba = document.getElementById('bt-lfs');
+  if (bt) bt.className = (brand === 'bcf' ? 'on' : '');
+  if (ba) ba.className = (brand === 'lfs' ? 'on' : '');
   document.querySelectorAll('#docs .mark').forEach(function(el){ el.textContent = b.mark; });
   document.querySelectorAll('#docs .co').forEach(function(el){ el.textContent = b.company; });
   document.querySelectorAll('#docs .fine span:last-child').forEach(function(el){ el.textContent = b.domain; });
@@ -2488,7 +2488,7 @@ initBrand();
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GK Converter - TBC</title>
+<title>GK Converter - BCF</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#0b111e;--card:#151e2d;--line:#2a364a;--ink:#f8fafc;--mid:#94a3b8;
@@ -2534,7 +2534,7 @@ initBrand();
 <div class="wrap">
   <div class="header">
     <div class="brand">
-      <div class="logo">tbc</div>
+      <div class="logo">bcf</div>
       <div><h1>GK Converter</h1><div class="sub">Passive segment builder</div></div>
     </div>
   </div>
