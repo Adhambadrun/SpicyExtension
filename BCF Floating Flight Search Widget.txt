@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCF Floating Flight Search Widget
 // @namespace    bcf-flight-widget
-// @version      12.2
+// @version      1.0
 // @description  Floating flight search helper with smooth circle minimize/expand, draggable bubble & full PNR/Itinerary tools
 // @match        https://bo.bcflights.com/*
 // @grant        none
