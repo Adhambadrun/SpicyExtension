@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SpicyExtension — Basis inspector</title>
+  <link rel="stylesheet" href="terminal.css">
+  <link rel="stylesheet" href="pages.css">
+  <script src="popup.js" defer></script>
+</head>
+<body class="popup">
+  <header class="brand">
+    <div class="brand-identity">
+      <img class="brand-logo" src="assets/icon-128.png" alt="Spicy Extension logo" width="32" height="32" draggable="false">
+      <div><div class="wordmark"><span class="wordmark-spicy">Spicy</span><span class="wordmark-extension">Extension</span></div><h1>Basis inspector</h1></div>
+    </div>
+    <span class="version">0.0.2</span>
+  </header>
+  <main>
+    <div class="terminal-grid">
+      <section class="terminal-pane" aria-label="Inspection input">
+        <p class="terminal-label">INPUT</p>
+        <div id="state" class="state">CHECKING ACTIVE TAB</div>
+        <h2>One result. Only what you choose.</h2>
+        <p class="muted">Select a flight card or expanded itinerary in your signed-in Basis tab. Review and redact before sharing.</p>
+        <button id="open" class="primary full" type="button" disabled>Open inspector</button>
+      </section>
+      <section class="terminal-pane" aria-label="Inspection status">
+        <p class="terminal-label output-label">OUTPUT / STATUS</p>
+        <p id="status" class="status" role="status" aria-live="polite">Checking your active tab…</p>
+        <ul class="privacy-list"><li>No cookies, passwords or form values</li><li>No background capture or uploads</li><li>No storage; closing clears the capture</li></ul>
+      </section>
+    </div>
+    <nav class="links" aria-label="Inspector resources"><a href="https://agentsearch.vercel.app/flights" target="_blank" rel="noopener noreferrer">Open Basis ↗</a><a href="help.html" target="_blank" rel="noopener">Instructions & privacy</a></nav>
+    <p class="footnote">Local inspection tool / not the finished flight assistant. Does not search, price or book flights.</p>
+  </main>
+</body>
+</html>

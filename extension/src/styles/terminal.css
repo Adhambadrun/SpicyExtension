@@ -1,0 +1,25 @@
+/* Shared SpicyTerminal brand language. No remote fonts or artwork. */
+:root, :host {
+  --spicy-bg: #06090b;
+  --spicy-surface: #0b1013;
+  --spicy-raised: #11181c;
+  --spicy-border: #263238;
+  --spicy-text: #e8eeeb;
+  --spicy-muted: #9aabae;
+  --spicy-output: #79e7a0;
+  --spicy-red: #ff354b;
+  --spicy-warning: #efc58b;
+  --spicy-error: #ff929c;
+  --spicy-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+.brand-logo { display: block; flex: 0 0 auto; object-fit: contain; user-select: none; }
+/* Accessible typographic brand until the supplied header.png is available. */
+.wordmark { display: inline-flex; align-items: baseline; white-space: nowrap; font-family: "Arial Black", "Trebuchet MS", sans-serif; font-size: 23px; font-weight: 900; font-style: italic; line-height: 1.15; letter-spacing: -1px; }
+.wordmark-spicy { color: var(--spicy-red); }
+.wordmark-extension { color: var(--spicy-text); }
+.terminal-label { margin: 0 0 12px; font: 700 10px/1.5 var(--spicy-mono); letter-spacing: 1.8px; color: var(--spicy-muted); text-transform: uppercase; }
+.terminal-label.output-label { color: var(--spicy-output); }
+.terminal-pane { min-width: 0; padding: 16px; border: 1px solid var(--spicy-border); border-radius: 4px; background: var(--spicy-surface); }
+.terminal-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.version { color: var(--spicy-muted); font: 10px/1.5 var(--spicy-mono); white-space: nowrap; }
