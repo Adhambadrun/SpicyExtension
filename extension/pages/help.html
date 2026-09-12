@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SpicyExtension — instructions & privacy</title><link rel="stylesheet" href="terminal.css"><link rel="stylesheet" href="pages.css"></head>
+<body class="guide">
+  <header class="brand">
+    <div class="brand-identity">
+      <img class="brand-logo" src="assets/icon-128.png" width="36" height="36" alt="Spicy Extension logo" draggable="false">
+      <div><div class="wordmark"><span class="wordmark-spicy">Spicy</span><span class="wordmark-extension">Extension</span></div><h1>BCF Basis Inspector</h1></div>
+    </div>
+    <span class="version">0.0.2</span>
+  </header>
+  <main>
+    <div class="state connected">LOCAL ONLY · NO AUTOMATIC UPLOADS</div>
+    <h2>A safe, reviewable way to establish the real flight-result structure.</h2>
+    <p>This tool is an inspection step for the planned BCFlights flight assistant. It is not the completed assistant, does not perform flight searches, and does not supply inventory, pricing or booking services.</p>
+    <section><p class="terminal-label">INPUT / SELECT A RESULT</p><h3>Capture a result</h3><ol>
+      <li>Open <a href="https://agentsearch.vercel.app/flights" target="_blank" rel="noopener noreferrer">Basis</a> in your usual Chrome profile. Sign in on the website normally and run a search you are authorized to make.</li>
+      <li>After installing or reloading this extension, <strong>reload the Basis tab</strong>. Pin the extension from Chrome’s Extensions menu if helpful.</li>
+      <li>On the <code>/flights</code> or <code>/search</code> page, click the toolbar icon and <strong>Open inspector</strong>, then <strong>Select a result area</strong>.</li>
+      <li>Move over one flight-result card. Check the outline. Use <strong>↑ / Larger</strong> and <strong>↓ / Smaller</strong> to adjust, then click or press Enter. Escape cancels. The selection layer prevents that click from activating the source card’s controls.</li>
+      <li>Review the plain JSON. Remove any names, booking references, account information or other private text. Check that flight fields, route, dates, cabins and fare structure remain useful.</li>
+      <li>Confirm that you reviewed it, then <strong>Download JSON</strong>. Copy JSON is available if Chrome permits clipboard access. The tool uploads nothing; you choose whether and where to share the file.</li>
+      <li>For a second sample, expand the itinerary in Basis, select its details area, choose <strong>Expanded itinerary details</strong>, and repeat. Closing the tool clears its in-memory capture, not files you already downloaded.</li>
+    </ol><p class="warning">Never add cookies, authorization headers, passwords, API keys, account data or an unsanitized HAR. Existing login stays with Chrome and the website.</p></section>
+    <section><p class="terminal-label">SOURCE / READ-ONLY</p><h3>What the extension reads</h3><p>Only after an explicit inspection action: the active tab’s URL to check the exact Basis origin/route, the geometry of the area you point to, and the visible text/structure of the selected subtree. URL queries and fragments are not exported. It never reads cookie APIs, local/session storage, password or other form-control values, or page JavaScript state.</p><p>A dormant content-script listener is installed on Basis search routes so the toolbar can open the inspector. It does not capture the page on load. The single host permission is <code>https://agentsearch.vercel.app/*</code>; there is no access to BO, mail, other sites, or other browser profiles.</p></section>
+    <section><p class="terminal-label output-label">OUTPUT / REVIEW & REDACT</p><h3>What gets removed — and what may remain</h3><p>Scripts, styles, embedded frames/media, hidden subtrees, form controls, links’ destinations, resource URLs, event handlers, IDs and arbitrary data attributes are omitted. A small allowlist preserves classes, roles, labels and test IDs so the flight-result structure can be studied. Recognizable email addresses, URLs and common credential patterns in text are replaced.</p><p class="warning">This is not complete anonymization. Names, booking references, unusual tokens, phone numbers or personal information in visible text/allowed labels may remain. Offscreen content is not necessarily hidden; the tool is not a visual screenshot or full visibility audit. You must review the selected capture before export and again before sharing it.</p><p>Shadow-root content is not included. Large/deep selections are rejected rather than silently truncated. Open details in Basis before capturing them. The output is a diagnostic HTML/text snapshot inside JSON, not a flight API response or a verified normalized flight model.</p></section>
+    <section><p class="terminal-label output-label">OUTPUT / LOCAL ONLY</p><h3>No uploads, tracking or persistence</h3><p>The extension has no network client, backend, analytics, telemetry or automatic upload. It stores no capture in Chrome storage or a database. Captures remain in the inspector’s memory until cleared, closed, or the page navigates. Export and clipboard operations require an explicit, reviewed user action. Downloaded files and clipboard contents are under your control; the extension does not erase them afterward.</p><p>The Basis website still operates normally and may make its own network requests. This extension does not modify its login, replay authenticated requests or bypass its access controls.</p></section>
+    <section><p class="terminal-label">HELP / RECOVERY</p><h3>Troubleshooting</h3><ul>
+      <li><strong>Open inspector is disabled:</strong> activate a signed-in Basis <code>/flights</code> or <code>/search</code> tab. Login/account pages are deliberately excluded.</li>
+      <li><strong>Page did not acknowledge:</strong> reload Basis after extension installation/reload. Chrome does not automatically inject the new script into already-open pages.</li>
+      <li><strong>Only an airline name was captured:</strong> use Larger area until the intended card is included. Check the JSON; do not select the whole application.</li>
+      <li><strong>No visible text:</strong> select the enclosing flight card rather than a logo, icon, hidden element or form field.</li>
+      <li><strong>Export is disabled:</strong> review the current JSON and check the confirmation. Every text or area change requires a new review.</li>
+      <li><strong>Clipboard blocked:</strong> use Download JSON and check Chrome’s download list.</li>
+      <li><strong>Inspector covers the result:</strong> drag the header, or focus the header’s move button and use arrow keys.</li>
+    </ul></section>
+  </main>
+</body>
+</html>
