@@ -4,21 +4,28 @@
     "theme": "extension/src/styles/terminal.css",
     "version": "1.0.0"
   },
-  "note": "Derived from the unmodified repository logo with the SpicyTerminal tokens. The wordmark is rendered typographically because the supplied header.png is still unavailable; regenerate with npm run store:gen on the pinned toolchain after changing logo.png or the extension version.",
+  "note": "Derived from the unmodified repository logo with the SpicyTerminal tokens. The wordmark is rendered typographically because the supplied header.png is still unavailable; regenerate with npm run store:gen on the pinned toolchain after changing logo.png or the extension version. Screenshots are not drawn here: see scripts/screenshots.mjs, which photographs the built extension UI.",
   "files": {
     "icon-128.png": {
       "kind": "store-icon",
       "width": 128,
       "height": 128,
-      "bytes": 11045,
-      "sha256": "85f92b1edea421ac1cf9bbf40f84c8fdbc40dd8031fcf7645e8a59449afa314c"
+      "bytes": 8449,
+      "sha256": "c07a59ea35a3542382102667a66a3eb46ed80e083f3a1443508890957a9ff810"
     },
-    "marquee-1280x800.png": {
-      "kind": "banner",
-      "width": 1280,
-      "height": 800,
-      "bytes": 204485,
-      "sha256": "e93caecdfc8c7df5f6c24e96a7d90ee2bbe397426c239095ec9b7444e726ba40"
+    "promo-440x280.png": {
+      "kind": "small-promo-tile",
+      "width": 440,
+      "height": 280,
+      "bytes": 33551,
+      "sha256": "7c951e67b7a2ea54e9d3401c14aedb649d9a6d7a8a93e9e4bf438439dc325cba"
+    },
+    "marquee-1400x560.png": {
+      "kind": "marquee-promo-tile",
+      "width": 1400,
+      "height": 560,
+      "bytes": 160027,
+      "sha256": "bfca9281bd7dd4527b04b71f6bbea4617870f70913b8425ff03d10b19b817c8c"
     }
   }
 }

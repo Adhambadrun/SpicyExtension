@@ -19,10 +19,17 @@ The file you upload to the Chrome Web Store is committed, so publishing does not
 ```text
 release/spicyextension-1.0.0.zip      ← upload this
 release/checksums.txt                 ← its recorded SHA-256
-store/icon-128.png                    ← store icon, derived from logo.png
-store/marquee-1280x800.png            ← store banner, derived from logo.png
+store/icon-128.png                    ← 128x128 store icon, derived from logo.png
+store/promo-440x280.png               ← required small promo tile
+store/marquee-1400x560.png            ← optional marquee promo tile
+store/screenshots/*.png               ← five 1280x800 shots of the real built UI
+site/                                 ← the spicyextension.vercel.app website
 docs/CHROME_WEB_STORE.md              ← every Dashboard field, ready to paste
 ```
+
+The listing also needs a reachable privacy policy. `site/` is the deployed source for
+**spicyextension.vercel.app**, including `/privacy.html` and `/support.html`, which are the URLs
+given in the submission document.
 
 `npm run release:check` rebuilds the extension and proves `release/` is byte-identical to the fresh build, that `manifest.json` sits at the ZIP root, and that no source, test, fixture, map or private file is inside. The archive is the Web Store format; a `.crx` is only for direct/local installation and is not what the Dashboard accepts.
 
@@ -61,7 +68,7 @@ On Linux, Playwright may need `npx playwright install --with-deps chromium`. A l
 
 Version 1.0.0 derives the Chrome icons from the repository's unchanged **[`logo.png`](logo.png)**. The panel, popup and help use the **SpicyTerminal** brand language: near-black panes, thin borders, monospace text, red/white identity and green output. **Expand** puts INPUT and OUTPUT side by side on wide screens; Compact stacks them without losing edits.
 
-`npm run store:gen` derives the 128px store icon and the 1280×800 banner from the same `logo.png` and the same `terminal.css` tokens — no cropping, no recolouring, no generated artwork. `npm run store:check` (part of `npm run check`) fails when they are missing, stale for the current `logo.png`/version, or not the exact PNG size Chrome Web Store wants. The exact `header.png` artwork will be embedded locally once accessible; until then the wordmark is typographic on every surface, including the banner. See [branding and regeneration instructions](docs/BRANDING.md).
+`npm run store:gen` derives the 128px store icon and both promo tiles (440×280 and 1400×560, the sizes the Dashboard actually accepts) from the same `logo.png` and the same `terminal.css` tokens — no cropping, no recolouring, no generated artwork. `npm run shots:gen` photographs the **real built extension** — the compiled content bundle driven through its shipped capture path over the committed synthetic fixture, plus the packaged popup and help pages — into five exact 1280×800 screenshots; nothing is mocked up or AI-generated. `npm run store:check` and `npm run shots:check` (both part of `npm run check`) fail when any asset is missing, stale for the current `logo.png`/version, or not the exact PNG size Chrome Web Store wants. The exact `header.png` artwork will be embedded locally once accessible; until then the wordmark is typographic on every surface, including the banner. See [branding and regeneration instructions](docs/BRANDING.md).
 
 ### Architecture and privacy
 

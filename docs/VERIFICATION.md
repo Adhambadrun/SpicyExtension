@@ -19,10 +19,11 @@ build intended for upload.
 | --- | --- |
 | Runtime / dependencies | Node 22.22.3 / npm 10.9.8; clean `npm ci --ignore-scripts --no-audit --no-fund` with the exact lockfile. |
 | `npm run icons:check` | Pass — 16/32/48/128px PNGs match the unchanged repository `logo.png`. |
-| `npm run store:check` | Pass — `store/icon-128.png` and `store/marquee-1280x800.png` match their recorded bytes, exact PNG sizes, and the current `logo.png` hash and manifest version. |
+| `npm run store:check` | Pass — `store/icon-128.png`, `store/promo-440x280.png` and `store/marquee-1400x560.png` match their recorded bytes, the exact PNG sizes the Dashboard accepts, and the current `logo.png` hash and manifest version. The promo tiles are verified to carry no alpha channel. |
+| `npm run shots:check` | Pass — five committed 1280x800 opaque PNG screenshots, current for this version. |
 | `npm run typecheck` | Pass — strict TypeScript compilation. |
 | `npm run lint` | Pass — zero ESLint errors. |
-| `npm test` | Pass — **174 tests across 11 files**, including the new naming, package and store-asset suites. |
+| `npm test` | Pass — **187 tests across 11 files**, including the naming, package, store-asset and screenshot-provenance suites. |
 | `npm run naming` coverage | The naming suite scans 60 tracked text files by content and by file name; the two supplied originals are exempt only as received filenames. |
 | `npm run build` | Pass — MV3 bundle in `dist/spicyextension` with the shared local SpicyTerminal stylesheet; permission/network/unsafe-execution build guards intact. |
 | `npm run package` | Pass — 12 runtime files, **50,088-byte** `artifacts/spicyextension-1.0.0.zip`. |
@@ -56,16 +57,38 @@ evidence of real Chrome layout, decoded UI images, clipboard access, trusted sel
 interception or extension IPC. Build checks reject unexpected permissions, remote execution/network
 primitives and unsafe HTML assignment.
 
-## Browser verification — blocked, not passed
+## Browser verification — partially unblocked, still not a green extension run
 
-No Chromium executable is available in this environment, so the 12 Playwright tests were only
-discovered. Earlier Playwright CDN, official Chrome-for-Testing and Debian mirror download attempts
-failed; repeated download attempts are not presented as test success. The suite drives real
-extension-to-content Chrome IPC against an intercepted, clearly synthetic DOM fixture and covers
-terminal colors, logo decoding, expanded columns, narrow-screen stacking and preservation of reviewed
-edits. It never uses login credentials or contacts real inventory. **A capture release is not
-browser-verified until these run green against the unpacked build, and the Web Store checklist in
-[CHROME_WEB_STORE.md](CHROME_WEB_STORE.md) therefore requires manual Chrome testing.**
+**What now runs in a real browser.** A Chromium 153 binary was obtained in this environment (the
+Playwright CDN, Chrome-for-Testing and the Debian mirrors are all unreachable; the binary came from
+an npm-published package, which is the only reachable host). It renders real pages, so the
+**store screenshots are genuine browser output**: `scripts/screenshots.mjs` loads the compiled
+`dist/spicyextension/content.js`, dispatches the shipped `BEGIN_CAPTURE` message to the content
+script's own listener, drives the real area picker, sanitizer, review gating and expand/compact
+layout over the committed synthetic fixture, and photographs the packaged popup and help pages. The
+capture panel visible in those screenshots is the shipped code producing real sanitized JSON. The
+website in `site/` was also rendered and checked at 320–1600px for horizontal overflow, broken
+links, missing alt text and console/network errors.
+
+**What still has not run.** The 12 Playwright tests in `tests/e2e/` are **still not executed**. That
+binary is a `headless_shell` build: it has no extensions subsystem, so `--load-extension` is ignored,
+`chrome://extensions` is unreachable and `Extensions.loadUnpacked` is not in its CDP protocol. The
+suite needs a full Chromium or Chrome-for-Testing build. Two environment-independent fixes were made
+to the suite so it is not stale when someone does run it: branded Chrome 137+ now also needs
+`--disable-features=DisableLoadExtensionCommandLineSwitch` (added), and the service-worker wait now
+fails with an explanatory message instead of an opaque timeout.
+
+**Therefore the following remain unverified in a real extension context:** MV3 installation and the
+service worker, extension-to-content Chrome IPC, `chrome.permissions` reporting only the single
+origin, the toolbar popup's active-tab logic, real clipboard access, the genuine trusted-event
+gating of export, and real download behaviour. The screenshot harness shims
+`chrome.runtime.onMessage` and `chrome.tabs.query` precisely because those APIs do not exist outside
+an installed extension — it exercises the UI and capture logic, **not** Chrome's extension plumbing.
+
+**A capture release is not browser-verified until the Playwright suite runs green against the
+unpacked build in real Chrome, and the Web Store checklist in
+[CHROME_WEB_STORE.md](CHROME_WEB_STORE.md) therefore still requires manual Chrome testing before
+publishing.**
 
 ## Publication scope and deferred CI
 

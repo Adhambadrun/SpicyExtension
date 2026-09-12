@@ -28,4 +28,4 @@ The user supplied a red/white **SpicyExtension** header wordmark, so the product
 
 ## Repository icon
 
-The supplied root `logo.png` is preserved unchanged and is the source of all four Chrome icon sizes and both committed Chrome Web Store images (`store/icon-128.png`, `store/marquee-1280x800.png`). See [BRANDING.md](BRANDING.md) for hashes, local asset handling, regeneration and current header status.
+The supplied root `logo.png` is preserved unchanged and is the source of all four Chrome icon sizes and both committed Chrome Web Store images (`store/icon-128.png`, `store/promo-440x280.png`, `store/marquee-1400x560.png`). See [BRANDING.md](BRANDING.md) for hashes, local asset handling, regeneration and current header status.
