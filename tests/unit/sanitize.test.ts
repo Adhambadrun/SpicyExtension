@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { captureElement, selectionProblem } from '../../extension/src/core/sanitize';
-import { INSPECTOR_ROOT_ID, LIMITS } from '../../extension/src/core/policy';
+import { CAPTURE_ROOT_ID, LIMITS } from '../../extension/src/core/policy';
 import { parseCapture, serializeCapture } from '../../extension/src/core/snapshot';
 
-// Synthetic DOM for the sanitizer only. NOT a Basis response or flight adapter fixture.
+// Synthetic DOM for the sanitizer only. NOT a source response or flight adapter fixture.
 const options = { url: 'https://agentsearch.vercel.app/flights?s=DO_NOT_EXPORT#private', kind: 'result-card' as const, now: new Date('2026-09-12T10:00:00.000Z') };
 function fixture(html: string): Element {
   const source = new DOMParser().parseFromString(html, 'text/html').body.firstElementChild;
@@ -86,19 +86,19 @@ describe('bounded selected-area capture', () => {
     const capture = captureElement(root, options);
     expect(capture.selection.html).not.toContain('SHADOW_PRIVATE');
     expect(capture.warnings.join(' ')).toContain('Shadow-root content is not captured');
-    expect(capture.selection.html).toContain('data-bcf-original-tag="custom-part"');
+    expect(capture.selection.html).toContain('data-spicy-original-tag="custom-part"');
   });
   it.each(['main', 'nav', 'form'])('refuses a broad or private %s root', (tag) => {
     const root = fixture(`<${tag}>Do not capture this whole area</${tag}>`);
     expect(() => captureElement(root, options)).toThrow();
   });
-  it('refuses the body, disconnected nodes, wrong origin and inspector itself', () => {
+  it('refuses the body, disconnected nodes, wrong origin and panel itself', () => {
     expect(selectionProblem(document.body)).toContain('whole page');
     expect(selectionProblem(document.createElement('article'))).toContain('removed');
     const root = fixture('<article>AAA → BBB</article>');
-    expect(() => captureElement(root, { ...options, url: 'https://evil.invalid/flights' })).toThrow('Basis');
-    root.id = INSPECTOR_ROOT_ID;
-    expect(() => captureElement(root, options)).toThrow('outside the inspector');
+    expect(() => captureElement(root, { ...options, url: 'https://evil.invalid/flights' })).toThrow('search-results');
+    root.id = CAPTURE_ROOT_ID;
+    expect(() => captureElement(root, options)).toThrow('outside the capture panel');
   });
   it('rejects oversized/deep selections rather than silently truncating', () => {
     const root = fixture('<article>AAA → BBB</article>');

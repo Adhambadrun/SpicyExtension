@@ -22,7 +22,7 @@ describe('shared SpicyTerminal styling', () => {
   });
 
   it('shares one locally packaged theme across the content view, popup and help', () => {
-    const controller = fs.readFileSync('extension/src/content/inspector.ts', 'utf8');
+    const controller = fs.readFileSync('extension/src/content/capture-panel.ts', 'utf8');
     expect(controller).toContain("import terminalCss from '../styles/terminal.css'");
     expect(controller).toContain('sheet.replaceSync(`${terminalCss}\\n${css}`)');
     for (const page of ['popup', 'help']) {

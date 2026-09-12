@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 const manifest = JSON.parse(fs.readFileSync('extension/manifest.json', 'utf8')) as Record<string, unknown>;
 
-describe('packaged inspector boundaries', () => {
+describe('packaged capture panel boundaries', () => {
   it('is MV3 with one exact host and no privileged APIs/external messaging', () => {
     expect(manifest['manifest_version']).toBe(3);
     expect(manifest['host_permissions']).toEqual(['https://agentsearch.vercel.app/*']);

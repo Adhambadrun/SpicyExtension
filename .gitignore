@@ -10,7 +10,7 @@ playwright-report/
 test-results/
 artifacts/
 local-captures/
-/bcf-basis-*.json
+/spicyextension-*.json
 *.log
 
 # Local credentials and deployment state

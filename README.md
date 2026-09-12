@@ -1,27 +1,41 @@
-# SpicyExtension — BCFlights
+# SpicyExtension
 
-Replacement for the supplied BCF userscript, with a future real-flight option viewer.
+**Everything in this repository ships under one name: SpicyExtension.** The old working title was removed from the manifest, the packaged pages, the export format, the build output, the scripts, the tests and the docs. The only product/brand strings a reviewer or user sees are `SpicyExtension` and the `SpicyTerminal` visual language.
 
-## Current deliverable: local Basis inspector (0.0.2)
+## Current deliverable: local capture panel (1.0.0)
 
-**The full flight assistant is not complete.** The source audit found that the supplied MCP archive is a public web-search connector, not a flight engine. The user chose to use the existing signed-in Basis session and then explicitly requested a local Chrome inspector to obtain the missing result structure.
+**The full flight assistant is not complete.** The source audit found that the supplied MCP archive is a public web-search connector, not a flight engine. The user chose to use the existing signed-in session of the connected site and then explicitly requested a local Chrome capture tool to obtain the missing result structure.
 
-The inspector is now implemented in TypeScript / Manifest V3. It lets the agent **select one result area, review/redact it, and download or copy a JSON snapshot locally**. It does not search, price, normalize inventory or book flights, and it does not claim the future flight assistant's acceptance criteria are met.
+The capture panel is implemented in TypeScript / Manifest V3. It lets the agent **select one result area, review/redact it, and download or copy a JSON snapshot locally**. It does not search, price, normalize inventory or book flights, and it does not claim the future flight assistant's acceptance criteria are met.
 
-**Design pass / final header pending:** The inspector now follows the requested SpicyTerminal style. The exact SpicyExtension header graphic is visible inline but is not available as a repository file; root `header.png` is still needed to replace the interim text wordmark. The user approved proceeding with the current inspector while this limitation remains documented.
+**Design pass / final header pending:** The panel follows the requested SpicyTerminal style. The exact header graphic was supplied inline but is not available as a repository file; root `header.png` is still needed to replace the interim typographic wordmark and the derived store banner. The user approved proceeding with the current build while this limitation remains documented.
 
-**Browser-unverified inspection build:** TypeScript, lint, 102 unit/structural tests and packaging pass. The 12 browser tests are discovered but have not run. Automatic CI is deferred with user approval because the connection cannot publish workflow files. The complete workflow is preserved as an [inactive template](docs/ci/README.md); no CI pass is claimed. See [the verification record](docs/VERIFICATION.md).
+**Browser-unverified build:** TypeScript, lint, unit/structural tests and packaging pass. The browser tests are discovered but have not run, because no Chromium binary is obtainable in this environment. Automatic CI is deferred with user approval because the connection cannot publish workflow files; the complete workflow is preserved as an [inactive template](docs/ci/README.md). No CI pass is claimed. See [the verification record](docs/VERIFICATION.md).
+
+### Publish-ready package
+
+The file you upload to the Chrome Web Store is committed, so publishing does not depend on someone's local build:
+
+```text
+release/spicyextension-1.0.0.zip      ← upload this
+release/checksums.txt                 ← its recorded SHA-256
+store/icon-128.png                    ← store icon, derived from logo.png
+store/marquee-1280x800.png            ← store banner, derived from logo.png
+docs/CHROME_WEB_STORE.md              ← every Dashboard field, ready to paste
+```
+
+`npm run release:check` rebuilds the extension and proves `release/` is byte-identical to the fresh build, that `manifest.json` sits at the ZIP root, and that no source, test, fixture, map or private file is inside. The archive is the Web Store format; a `.crx` is only for direct/local installation and is not what the Dashboard accepts.
 
 ### Install and capture
 
-1. Download/extract `bcf-basis-inspector-0.0.2.zip`, or build it below.
-2. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the extracted folder containing `manifest.json` (or `dist/basis-inspector`).
-3. In the same Chrome profile, sign in to [Basis](https://agentsearch.vercel.app/flights) normally. **Reload the Basis tab after extension installation/reload.** Run a real search you are authorized to make.
-4. Click the extension icon → **Open inspector** → **Select a result area**. Click inside a flight card; use **Larger / Smaller** or ↑ / ↓ to adjust. Escape cancels. Drag the inspector header if it obscures the card.
-5. Review and redact the plain JSON. Confirm the review, then **Download JSON**. Expand itinerary details in Basis and capture them separately if useful.
-6. Share the reviewed files here yourself. Do not send cookies, request headers, passwords, API keys, account data, or an unsanitized HAR.
+1. Extract `release/spicyextension-1.0.0.zip` (or build it below).
+2. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the extracted folder containing `manifest.json` (or `dist/spicyextension`).
+3. In the same Chrome profile, sign in on [the connected site](https://agentsearch.vercel.app/flights) normally. **Reload that tab after extension installation/reload.** Run a real search you are authorized to make.
+4. Click the extension icon → **Open capture panel** → **Select a result area**. Click inside a flight card; use **Larger / Smaller** or ↑ / ↓ to adjust. Escape cancels. Drag the panel header if it obscures the card.
+5. Review and redact the plain JSON. Confirm the review, then **Download JSON**. Expand itinerary details on the site and capture them separately if useful.
+6. Share the reviewed files yourself. Do not send cookies, request headers, passwords, API keys, account data, or an unsanitized HAR.
 
-See [full instructions, privacy and limitations](docs/INSPECTOR.md). Complete help is also packaged in the extension; no external documentation or font is required.
+See [full instructions, privacy and limitations](docs/CAPTURE.md). Complete help is also packaged in the extension; no external documentation or font is required.
 
 ### Build and verify
 
@@ -29,35 +43,37 @@ Node **22.22.3** (see `.nvmrc`) and npm:
 
 ```bash
 npm ci --ignore-scripts --no-audit --no-fund
-npm run check                 # strict TypeScript, ESLint, unit tests, MV3 build
+npm run check                 # icons, store art, strict TypeScript, ESLint, unit tests, MV3 build
 npx playwright install chromium
 npm run test:e2e              # built, unpacked extension against a local synthetic DOM fixture
-npm run package               # artifacts/bcf-basis-inspector-0.0.2.zip
+npm run package               # artifacts/spicyextension-1.0.0.zip
+npm run release:check         # proves the committed release/ ZIP matches a fresh build
+npm run release:gen           # only when the version or source changed: rewrite release/ + checksums
 ```
 
-### Chrome Web Store upload
+On Linux, Playwright may need `npx playwright install --with-deps chromium`. A locally installed compatible Chromium can be selected with `CHROMIUM_PATH=/path/to/chromium npm run test:e2e`. Packaging is deterministic for the same source/dependency/runtime versions. `dist/`, generated browser profiles and test reports stay out of Git; `release/` and `store/` are deliberately committed because they are the publish inputs.
 
-Upload the versioned `artifacts/bcf-basis-inspector-0.0.2.zip` produced by `npm run package` to the Chrome Web Store Developer Dashboard. The archive contains `manifest.json` at its root and no source, test, dependency, or private files. Chrome Web Store accepts the ZIP package; a `.crx` is for direct/local installation and is not the Web Store publishing format. Build artifacts remain intentionally untracked and should be regenerated for each release.
+### Naming rules that are enforced by tests
 
-On Linux, Playwright may need `npx playwright install --with-deps chromium`. A locally installed compatible Chromium can be selected with `CHROMIUM_PATH=/path/to/chromium npm run test:e2e`. The package is deterministic for the same source/dependency/runtime versions. Generated browser profiles, test reports and ZIP files stay out of Git.
+`tests/unit/naming.test.ts` fails the build if the retired working title, its vendor prefix or the old tool word reappear in any tracked text file, including in `extension/manifest.json` (`name`, `description`, `action.default_title`), the packaged pages, the exported JSON `format`, the download filename prefix, the DOM root id, the message constants, the build output directory and the ZIP name. Two things are intentionally exempt and must stay exactly as received: the user-supplied source files `BCF Floating Flight Search Widget.txt` and `agentsearch-mcp-master.zip`, whose bytes are hash-verified as unchanged, and the literal origin `https://agentsearch.vercel.app` that the single host permission requires.
 
-### Repository logo
+### Repository logo and store art
 
-Version 0.0.2 derives the Chrome icons from the repository's unchanged **[`logo.png`](logo.png)**. The inspector, popup and help use the newer **SpicyTerminal** brand language: near-black panes, thin borders, monospace text, red/white identity and green output. **Expand** puts INPUT and OUTPUT side by side on wide screens; Compact stacks them without losing edits.
+Version 1.0.0 derives the Chrome icons from the repository's unchanged **[`logo.png`](logo.png)**. The panel, popup and help use the **SpicyTerminal** brand language: near-black panes, thin borders, monospace text, red/white identity and green output. **Expand** puts INPUT and OUTPUT side by side on wide screens; Compact stacks them without losing edits.
 
-The current header uses the local icon and interim typography, **not the supplied header image**. The exact `header.png` artwork will be embedded locally once accessible. No remote logo/font request or extra permission is added. See [branding and regeneration instructions](docs/BRANDING.md).
+`npm run store:gen` derives the 128px store icon and the 1280×800 banner from the same `logo.png` and the same `terminal.css` tokens — no cropping, no recolouring, no generated artwork. `npm run store:check` (part of `npm run check`) fails when they are missing, stale for the current `logo.png`/version, or not the exact PNG size Chrome Web Store wants. The exact `header.png` artwork will be embedded locally once accessible; until then the wordmark is typographic on every surface, including the banner. See [branding and regeneration instructions](docs/BRANDING.md).
 
 ### Architecture and privacy
 
-- `extension/src/background/`: validates popup sender and routes one named operation to the active, exact Basis tab.
-- `extension/src/content/`: dormant Chrome-message listener, singleton Shadow DOM inspector, bounded selection overlay, review/export UI and cleanup.
+- `extension/src/background/`: validates popup sender and routes one named operation to the active, exact site tab.
+- `extension/src/content/`: dormant Chrome-message listener, singleton Shadow DOM capture panel, bounded selection overlay, review/export UI and cleanup.
 - `extension/src/core/`: strict origin/route policy, capture model/validation, selected-subtree sanitizer and best-effort text redaction.
 - `extension/pages/`: packaged popup and privacy/help page.
 - `extension/src/styles/terminal.css`: shared SpicyTerminal tokens and brand styling for every surface.
-- `scripts/`: bundling, icon derivation from the repository's `logo.png`, deterministic packaging and build-boundary checks.
-- `tests/`: unit/security checks and built-extension browser tests. Fixtures are synthetic **sanitizer/UI tests**, not invented Basis response fixtures, and are not shipped.
+- `scripts/`: bundling, icon and store-art derivation from the repository's `logo.png`, deterministic packaging, and release-package verification.
+- `tests/`: unit/security checks, naming enforcement and built-extension browser tests. Fixtures are synthetic **sanitizer/UI tests**, not invented response fixtures, and are not shipped.
 
-Only `https://agentsearch.vercel.app/*` is granted. No cookies, storage, downloads, clipboard, scripting, broad tabs or other-site permissions are requested. No backend, network client, analytics, remote code or automatic upload is present. Chrome/the source website handles login; the extension never copies authentication. Exported data is a diagnostic DOM snapshot, not an API contract or normalized flight result.
+Only `https://agentsearch.vercel.app/*` is granted. No cookies, storage, downloads, clipboard, scripting, broad tabs or other-site permissions are requested. No backend, network client, analytics, remote code or automatic upload is present. Chrome and the connected website handle login; the extension never copies authentication. Exported data is a diagnostic DOM snapshot, not an API contract or normalized flight result.
 
 **Redaction is not complete anonymization.** Visible names/references/unusual secrets can remain; the agent must review before exporting and sharing. Closing/navigating clears in-memory captures, but does not erase the clipboard or already downloaded files.
 
@@ -67,8 +83,9 @@ Only `https://agentsearch.vercel.app/*` is granted. No cookies, storage, downloa
 - [Provisional full-assistant architecture and acceptance plan](docs/ARCHITECTURE.md)
 - [Signed-in browser integration plan](docs/BROWSER_SESSION.md)
 - [Received visual-reference interpretation](docs/VISUAL_REFERENCES.md)
+- [Chrome Web Store submission fields](docs/CHROME_WEB_STORE.md)
 - [Verification record](docs/VERIFICATION.md)
 
-Both original inputs remain byte-for-byte unchanged. The existing userscript can continue to be used; this inspector does not replace or inject into BO.
+Both original inputs remain byte-for-byte unchanged. The existing userscript can continue to be used; the capture panel does not replace or inject into the back-office tooling.
 
-**Next:** inspect the reviewed real Basis result/card-detail snapshots, establish the actual signed-in search lifecycle, then implement the adapter, flight models/viewer, BO parser/tool migration and real-session tests. The full-product PR must remain unmerged until those release gates are satisfied. An inspector-only build or passing fixture tests is not live-flight E2E verification.
+**Next:** review the real result/card-detail snapshots, establish the actual signed-in search lifecycle, then implement the adapter, flight models/viewer, parser/tool migration and real-session tests. The full-product work must stay unmerged until those release gates are satisfied. A capture-only build or passing fixture tests is not live-flight E2E verification.

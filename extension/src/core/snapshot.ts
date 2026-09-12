@@ -1,4 +1,4 @@
-import { BASIS_ORIGIN, LIMITS, byteLength, sourcePath } from './policy';
+import { SITE_ORIGIN, LIMITS, byteLength, sourcePath } from './policy';
 import type { SourcePath } from './policy';
 
 export type CaptureKind = 'result-card' | 'itinerary-details';
@@ -9,9 +9,9 @@ export interface CaptureStats {
   redactedTextNodes: number;
 }
 export interface Capture {
-  format: 'bcf-basis-inspector';
+  format: 'spicyextension-capture';
   version: 1;
-  source: { origin: typeof BASIS_ORIGIN; path: SourcePath };
+  source: { origin: typeof SITE_ORIGIN; path: SourcePath };
   capturedAt: string;
   kind: CaptureKind;
   selection: { tag: string; html: string; text: string };
@@ -41,11 +41,11 @@ export function parseCapture(text: string): Capture {
   let data: unknown;
   try { data = JSON.parse(text); } catch { throw new Error('The review text is not valid JSON. Undo the edit or select the result again.'); }
   if (!record(data) || !onlyKeys(data, ['format', 'version', 'source', 'capturedAt', 'kind', 'selection', 'stats', 'warnings']) ||
-    data['format'] !== 'bcf-basis-inspector' || data['version'] !== 1 ||
+    data['format'] !== 'spicyextension-capture' || data['version'] !== 1 ||
     !record(data['source']) || !onlyKeys(data['source'], ['origin', 'path']) ||
-    data['source']['origin'] !== BASIS_ORIGIN ||
+    data['source']['origin'] !== SITE_ORIGIN ||
     !['/flights', '/search'].includes(String(data['source']['path'])) ||
-    sourcePath(`${BASIS_ORIGIN}${String(data['source']['path'])}`) !== data['source']['path'] ||
+    sourcePath(`${SITE_ORIGIN}${String(data['source']['path'])}`) !== data['source']['path'] ||
     typeof data['capturedAt'] !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(data['capturedAt']) ||
     !Number.isFinite(Date.parse(data['capturedAt'])) || new Date(data['capturedAt']).toISOString() !== data['capturedAt'] ||
     !['result-card', 'itinerary-details'].includes(String(data['kind'])) ||
@@ -64,5 +64,5 @@ export function parseCapture(text: string): Capture {
 }
 
 export function captureFilename(capture: Capture): string {
-  return `bcf-basis-${capture.kind}-${capture.capturedAt.replace(/[:.]/g, '-')}.json`;
+  return `spicyextension-${capture.kind}-${capture.capturedAt.replace(/[:.]/g, '-')}.json`;
 }

@@ -1,4 +1,4 @@
-import { BASIS_ORIGIN, INSPECTOR_ROOT_ID, LIMITS, sourcePath } from './policy';
+import { SITE_ORIGIN, CAPTURE_ROOT_ID, LIMITS, sourcePath } from './policy';
 import { escapeAttribute, escapeText, redactText } from './redaction';
 import { REVIEW_WARNING, serializeCapture } from './snapshot';
 import type { Capture, CaptureKind } from './snapshot';
@@ -13,12 +13,12 @@ const PRIVATE_ANCESTORS = '[contenteditable]:not([contenteditable="false"]), [da
 
 export function selectionProblem(element: Element): string | null {
   if (!element.isConnected || element.ownerDocument !== document) return 'This result changed or was removed. Select it again.';
-  if (element.closest(`#${INSPECTOR_ROOT_ID}`)) return 'Select a flight-result area outside the inspector.';
+  if (element.closest(`#${CAPTURE_ROOT_ID}`)) return 'Select a flight-result area outside the capture panel.';
   const tag = element.localName.toLowerCase();
   if (BROAD_ROOTS.has(tag) || element.id === '__next' || element.getAttribute('role') === 'main') return 'Select one result card or its details, not the whole page.';
-  if (OMIT.has(tag) || element.closest(PRIVATE_ANCESTORS)) return 'Forms, account navigation and private areas cannot be inspected.';
+  if (OMIT.has(tag) || element.closest(PRIVATE_ANCESTORS)) return 'Forms, account navigation and private areas cannot be captured.';
   for (let ancestor: Element | null = element; ancestor; ancestor = ancestor.parentElement) {
-    if (hidden(ancestor)) return 'This area is hidden. Expand the visible itinerary in Basis, then select it again.';
+    if (hidden(ancestor)) return 'This area is hidden. Expand the visible itinerary, then select it again.';
   }
   return null;
 }
@@ -33,7 +33,7 @@ function hidden(element: Element): boolean {
 /** Read a bounded selected subtree only. Never read cookies, storage, form values or page globals. */
 export function captureElement(element: Element, options: { url: string; kind: CaptureKind; now?: Date }): Capture {
   const path = sourcePath(options.url);
-  if (!path) throw new Error('Open a signed-in Basis search-results page first.');
+  if (!path) throw new Error('Open a signed-in flight search-results page first.');
   const problem = selectionProblem(element);
   if (problem) throw new Error(problem);
   const stats = { elements: 0, omittedElements: 0, droppedAttributes: 0, redactedTextNodes: 0 };
@@ -68,14 +68,14 @@ export function captureElement(element: Element, options: { url: string; kind: C
     if (stats.elements > LIMITS.elements) throw new Error('This selection is too large. Select one smaller result area.');
     const originalTag = node.localName.toLowerCase();
     if (OMIT.has(originalTag) || node.matches(PRIVATE_ANCESTORS) || hidden(node) ||
-      node.namespaceURI !== 'http://www.w3.org/1999/xhtml' || node.id === INSPECTOR_ROOT_ID) {
+      node.namespaceURI !== 'http://www.w3.org/1999/xhtml' || node.id === CAPTURE_ROOT_ID) {
       stats.omittedElements++;
       return;
     }
     const tag = SAFE_TAGS.has(originalTag) ? originalTag : 'div';
     emit(`<${tag}`);
     if (tag !== originalTag) {
-      emit(` data-bcf-original-tag="${escapeAttribute(originalTag)}"`);
+      emit(` data-spicy-original-tag="${escapeAttribute(originalTag)}"`);
       warnings.add('Custom tags were represented as plain containers.');
     }
     for (const name of node.getAttributeNames()) {
@@ -99,10 +99,10 @@ export function captureElement(element: Element, options: { url: string; kind: C
   const text = redactText(plain.join('').replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim());
   if (!html.length || !text) throw new Error('No visible text was found. Select the card container, not an image, icon or hidden area.');
   if (text.length > LIMITS.text) throw new Error('This selection contains too much text. Select a smaller area.');
-  if (stats.omittedElements) warnings.add('Hidden content, form controls and unsafe elements were omitted. Expand the itinerary in Basis before capturing its details.');
+  if (stats.omittedElements) warnings.add('Hidden content, form controls and unsafe elements were omitted. Expand the itinerary before capturing its details.');
   const capture: Capture = {
-    format: 'bcf-basis-inspector', version: 1,
-    source: { origin: BASIS_ORIGIN, path },
+    format: 'spicyextension-capture', version: 1,
+    source: { origin: SITE_ORIGIN, path },
     capturedAt: (options.now ?? new Date()).toISOString(), kind: options.kind,
     selection: { tag: element.localName.toLowerCase(), html: html.join(''), text },
     stats, warnings: [...warnings],

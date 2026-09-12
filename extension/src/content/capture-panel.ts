@@ -1,7 +1,7 @@
-import css from '../styles/inspector.css';
+import css from '../styles/capture-panel.css';
 import terminalCss from '../styles/terminal.css';
 import brandLogo from '../../assets/icon-128.png';
-import { DISPOSE_EVENT, INSPECTOR_ROOT_ID, byteLength, sourcePath } from '../core/policy';
+import { DISPOSE_EVENT, CAPTURE_ROOT_ID, byteLength, sourcePath } from '../core/policy';
 import { captureElement, selectionProblem } from '../core/sanitize';
 import { captureFilename, parseCapture, serializeCapture } from '../core/snapshot';
 import type { Capture, CaptureKind } from '../core/snapshot';
@@ -9,19 +9,19 @@ import { button, clampPanel, element, enableDrag } from './dom';
 import { AreaPicker } from './picker';
 
 type Mode = 'ready' | 'picking' | 'review';
-type Registry = { __bcfBasisInspectorController?: Inspector };
+type Registry = { __spicyExtensionCapturePanel?: CapturePanel };
 const registry = globalThis as typeof globalThis & Registry;
 
-export function openInspector(): void {
-  const existing = registry.__bcfBasisInspectorController;
+export function openCapturePanel(): void {
+  const existing = registry.__spicyExtensionCapturePanel;
   if (existing?.host.isConnected) { existing.focus(); return; }
   window.dispatchEvent(new Event(DISPOSE_EVENT));
-  const oldRoot = document.getElementById(INSPECTOR_ROOT_ID);
-  if (oldRoot?.getAttribute('data-bcf-owned') === '1') oldRoot.remove();
-  registry.__bcfBasisInspectorController = new Inspector();
+  const oldRoot = document.getElementById(CAPTURE_ROOT_ID);
+  if (oldRoot?.getAttribute('data-spicy-owned') === '1') oldRoot.remove();
+  registry.__spicyExtensionCapturePanel = new CapturePanel();
 }
 
-class Inspector {
+class CapturePanel {
   readonly host = element('div');
   private readonly lifecycle = new AbortController();
   private readonly panel = element('section', 'panel');
@@ -55,15 +55,15 @@ class Inspector {
   private disposed = false;
 
   constructor() {
-    if (!sourcePath(location.href) || !document.body) throw new Error('Basis search results are required.');
-    this.host.id = INSPECTOR_ROOT_ID;
-    this.host.setAttribute('data-bcf-owned', '1');
+    if (!sourcePath(location.href) || !document.body) throw new Error('A supported flight-results page is required.');
+    this.host.id = CAPTURE_ROOT_ID;
+    this.host.setAttribute('data-spicy-owned', '1');
     const shadow = this.host.attachShadow({ mode: 'open' });
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(`${terminalCss}\n${css}`);
     shadow.adoptedStyleSheets = [sheet];
     this.panel.setAttribute('role', 'dialog');
-    this.panel.setAttribute('aria-label', 'BCF local Basis inspector');
+    this.panel.setAttribute('aria-label', 'SpicyExtension local capture panel');
     this.panel.setAttribute('aria-modal', 'false');
     this.panel.tabIndex = -1;
     this.overlay.tabIndex = 0;
@@ -75,15 +75,15 @@ class Inspector {
 
     const header = element('div', 'header');
     const drag = button('', () => undefined, 'drag-handle');
-    drag.setAttribute('aria-label', 'Move inspector. Drag or use arrow keys.');
+    drag.setAttribute('aria-label', 'Move panel. Drag or use arrow keys.');
     drag.title = 'Drag to move · arrow keys when focused';
     const titles = element('div');
     const wordmark = element('div', 'wordmark');
     wordmark.append(element('span', 'wordmark-spicy', 'Spicy'), element('span', 'wordmark-extension', 'Extension'));
-    titles.append(wordmark, element('div', 'overline', 'BCF / BASIS INSPECTOR'));
+    titles.append(wordmark, element('div', 'overline', 'LOCAL CAPTURE · JSON'));
     const logo = element('img', 'brand-logo');
     logo.src = brandLogo; // Build-time data URL: no request, host grant or web-accessible resource.
-    logo.alt = 'Spicy Extension logo';
+    logo.alt = 'SpicyExtension logo';
     logo.width = 32;
     logo.height = 32;
     logo.draggable = false;
@@ -92,7 +92,7 @@ class Inspector {
     close.setAttribute('aria-label', 'Close and clear capture');
     close.title = 'Close & clear capture';
     this.expandButton = button('Expand', () => this.setExpanded(!this.panel.classList.contains('expanded')), 'button secondary small-button');
-    this.expandButton.setAttribute('aria-label', 'Expanded inspector layout');
+    this.expandButton.setAttribute('aria-label', 'Expanded capture layout');
     this.expandButton.setAttribute('aria-pressed', 'false');
     this.expandButton.title = 'Use a two-column terminal layout';
     const headerActions = element('div', 'header-actions');
@@ -102,7 +102,7 @@ class Inspector {
 
     const content = element('div', 'content');
     content.append(element('div', 'privacy', 'LOCAL ONLY · NO AUTOMATIC UPLOADS'));
-    this.ready.append(element('h2', '', 'Inspect one real flight result'), element('p', 'muted', 'Capture one visible result from your signed-in Basis tab.'));
+    this.ready.append(element('h2', '', 'Capture one real flight result'), element('p', 'muted', 'Capture one visible result from your signed-in site tab.'));
     const steps = element('ol');
     for (const instruction of ['Open a result or expand its itinerary.', 'Select one area. Adjust Larger / Smaller.', 'Review the JSON and remove private data.']) steps.append(element('li', '', instruction));
     this.selectButton = button('Select a result area', () => this.startPicking(), 'button primary full');
@@ -225,7 +225,7 @@ class Inspector {
     this.emptyOutput.hidden = mode === 'review';
     this.emptyOutput.textContent = mode === 'picking'
       ? 'Waiting for your selection.\nNothing is exported automatically.'
-      : 'No result captured.\nSelect one area in Basis to begin.';
+      : 'No result captured.\nSelect one area on the page to begin.';
     this.panel.classList.toggle('review', mode === 'review');
     const box = this.panel.getBoundingClientRect();
     clampPanel(this.panel, box.left, box.top);
@@ -235,7 +235,7 @@ class Inspector {
     this.panel.classList.toggle('expanded', expanded);
     this.expandButton.textContent = expanded ? 'Compact' : 'Expand';
     this.expandButton.setAttribute('aria-pressed', String(expanded));
-    this.expandButton.title = expanded ? 'Return to the compact floating inspector' : 'Use a two-column terminal layout';
+    this.expandButton.title = expanded ? 'Return to the compact floating panel' : 'Use a two-column terminal layout';
     const box = this.panel.getBoundingClientRect();
     clampPanel(this.panel, box.left, box.top);
   }
@@ -270,13 +270,13 @@ class Inspector {
       this.setMode('review');
       this.resetReview();
       this.smallerButton.disabled = this.history.length < 2;
-      this.statistics.textContent = `${capture.stats.elements} elements inspected · ${capture.stats.omittedElements} subtrees omitted · ${capture.stats.droppedAttributes} attributes removed · ${(byteLength(this.editor.value) / 1024).toFixed(1)} KB`;
+      this.statistics.textContent = `${capture.stats.elements} elements captured · ${capture.stats.omittedElements} subtrees omitted · ${capture.stats.droppedAttributes} attributes removed · ${(byteLength(this.editor.value) / 1024).toFixed(1)} KB`;
       this.notice('Captured locally. Check that the intended card/details are included and redact anything private.');
       this.editor.focus({ preventScroll: true });
       this.editor.setSelectionRange(0, 0);
       return true;
     } catch (error) {
-      this.notice(error instanceof Error ? error.message : 'Unable to inspect this area. Select a smaller flight result.', 'error');
+      this.notice(error instanceof Error ? error.message : 'Unable to capture this area. Select a smaller flight result.', 'error');
       return false;
     }
   }
@@ -367,7 +367,7 @@ class Inspector {
     this.history = [];
     this.resetReview();
     this.setMode('ready');
-    this.notice('Capture cleared from the inspector. Previously downloaded files are not deleted.');
+    this.notice('Capture cleared from the panel. Previously downloaded files are not deleted.');
     this.focus();
   }
 
@@ -385,7 +385,7 @@ class Inspector {
     this.reviewedText = null;
     this.editor.value = '';
     this.host.remove();
-    if (registry.__bcfBasisInspectorController === this) delete registry.__bcfBasisInspectorController;
+    if (registry.__spicyExtensionCapturePanel === this) delete registry.__spicyExtensionCapturePanel;
     if (restoreFocus && this.previousFocus instanceof HTMLElement && this.previousFocus.isConnected) this.previousFocus.focus({ preventScroll: true });
   }
 }

@@ -5,7 +5,7 @@ import { LIMITS } from '../../extension/src/core/policy';
 
 function capture(): Capture {
   return {
-    format: 'bcf-basis-inspector', version: 1,
+    format: 'spicyextension-capture', version: 1,
     source: { origin: 'https://agentsearch.vercel.app', path: '/flights' },
     capturedAt: '2026-09-12T10:30:00.000Z', kind: 'result-card',
     selection: { tag: 'article', html: '<article>AAA → BBB</article>', text: 'AAA → BBB' },
@@ -18,7 +18,7 @@ describe('local export contract', () => {
     const data = capture();
     data.selection.text = '[name removed]';
     expect(parseCapture(serializeCapture(data))).toEqual(data);
-    expect(captureFilename(data)).toBe('bcf-basis-result-card-2026-09-12T10-30-00-000Z.json');
+    expect(captureFilename(data)).toBe('spicyextension-result-card-2026-09-12T10-30-00-000Z.json');
   });
   it('supports a separate expanded-details capture', () => {
     const data = capture(); data.kind = 'itinerary-details';

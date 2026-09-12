@@ -2,11 +2,11 @@ import { test, expect, chromium } from '@playwright/test';
 import type { BrowserContext, Page, Worker } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { BEGIN_INSPECTION } from '../../extension/src/core/messages';
+import { BEGIN_CAPTURE } from '../../extension/src/core/messages';
 import { parseCapture } from '../../extension/src/core/snapshot';
 
 const sourceUrl = 'https://agentsearch.vercel.app/flights?s=QUERY_SECRET#private';
-const root = '#bcf-basis-inspector-root';
+const root = '#spicyextension-capture-root';
 let context: BrowserContext;
 let worker: Worker;
 let page: Page;
@@ -15,7 +15,7 @@ let requests: string[];
 let extensionId: string;
 
 test.beforeAll(async () => {
-  const extension = path.resolve('dist/basis-inspector');
+  const extension = path.resolve('dist/spicyextension');
   const executablePath = process.env['CHROMIUM_PATH'];
   context = await chromium.launchPersistentContext('', {
     ...(executablePath ? { executablePath } : { channel: 'chromium' }),
@@ -55,7 +55,7 @@ async function activate(): Promise<unknown> {
     const tab = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
     if (typeof tab?.id !== 'number') throw new Error('No active test tab');
     return chrome.tabs.sendMessage(tab.id, { type, version: 1 });
-  }, BEGIN_INSPECTION);
+  }, BEGIN_CAPTURE);
 }
 
 async function captureCard(): Promise<void> {
@@ -69,7 +69,7 @@ async function captureCard(): Promise<void> {
 }
 
 async function expectBrandLogo(src: string | RegExp): Promise<void> {
-  const logo = page.getByRole('img', { name: 'Spicy Extension logo', exact: true });
+  const logo = page.getByRole('img', { name: 'SpicyExtension logo', exact: true });
   await expect(logo).toBeVisible();
   await expect(logo).toHaveAttribute('src', src);
   await expect.poll(() => logo.evaluate((node: HTMLImageElement) => ({
@@ -82,13 +82,13 @@ function consent() { return page.getByRole('checkbox', { name: /I reviewed this 
 
 test('installs as MV3 and remains dormant until internal Chrome IPC', async () => {
   await expect(page.locator(root)).toHaveCount(0);
-  await page.evaluate(() => window.postMessage({ type: 'BCF_INSPECTOR_BEGIN', version: 1 }, '*'));
+  await page.evaluate(() => window.postMessage({ type: 'SPICY_CAPTURE_BEGIN', version: 1 }, '*'));
   await expect(page.locator(root)).toHaveCount(0);
   const permissions = await worker.evaluate(() => chrome.permissions.getAll());
   expect(permissions.permissions ?? []).toEqual([]);
   expect(permissions.origins).toEqual(['https://agentsearch.vercel.app/*']);
   expect(await activate()).toEqual({ ok: true });
-  await expect(page.getByRole('dialog', { name: 'BCF local Basis inspector' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'SpicyExtension local capture panel' })).toBeVisible();
   await expectBrandLogo(/^data:image\/png;base64,/);
   await expect(page.getByRole('textbox', { name: 'Review and redact capture JSON' })).toBeHidden();
 });
@@ -109,17 +109,17 @@ test('captures only the selected area, gates export, and downloads valid redacte
   const download = await pending;
   const filename = testInfo.outputPath('reviewed-capture.json');
   await download.saveAs(filename);
-  expect(download.suggestedFilename()).toMatch(/^bcf-basis-result-card-[\dTZ-]+\.json$/);
+  expect(download.suggestedFilename()).toMatch(/^spicyextension-result-card-[\dTZ-]+\.json$/);
   expect(parseCapture(await fs.readFile(filename, 'utf8'))).toEqual(capture);
   expect(requests).toEqual(before);
-  await page.getByRole('dialog').screenshot({ path: testInfo.outputPath('inspector-review.png') });
+  await page.getByRole('dialog').screenshot({ path: testInfo.outputPath('capture-review.png') });
 });
 
-test('selection clicks do not activate the source action', async () => {
+test('selection clicks do not activate the page action', async () => {
   await activate();
   await page.getByRole('button', { name: 'Select a result area' }).click();
   const box = await page.locator('#source-action').boundingBox();
-  if (!box) throw new Error('Missing source action');
+  if (!box) throw new Error('Missing page action');
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   await expect(page.getByRole('heading', { name: 'Review before sharing' })).toBeVisible();
@@ -184,7 +184,7 @@ test('Escape cancels selection and keyboard movement keeps the panel within the 
   await page.getByRole('button', { name: 'Select a result area' }).click();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'Select a result area' })).toBeVisible();
-  const move = page.getByRole('button', { name: 'Move inspector. Drag or use arrow keys.' });
+  const move = page.getByRole('button', { name: 'Move panel. Drag or use arrow keys.' });
   await move.focus();
   for (let i = 0; i < 70; i++) await page.keyboard.press('ArrowLeft');
   const box = await page.getByRole('dialog').boundingBox();
@@ -195,7 +195,7 @@ test('Escape cancels selection and keyboard movement keeps the panel within the 
   expect((resized?.x ?? 0) + (resized?.width ?? 0)).toBeLessThanOrEqual(720);
 });
 
-test('SPA query/lead changes clear stale data and login routes reject inspection', async () => {
+test('SPA query/lead changes clear stale data and login routes reject a capture request', async () => {
   await captureCard();
   await page.evaluate(() => history.pushState({}, '', '/flights?s=next-search'));
   await expect(page.locator(root)).toHaveCount(0);
@@ -209,18 +209,18 @@ test('SPA query/lead changes clear stale data and login routes reject inspection
 
 test('popup and packaged privacy guide load under the MV3 CSP without remote requests', async () => {
   await page.goto(`chrome-extension://${extensionId}/popup.html`);
-  await expect(page.getByRole('heading', { name: 'Basis inspector' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Local capture' })).toBeVisible();
   await expectBrandLogo('assets/icon-128.png');
-  await expect(page.getByRole('button', { name: 'Open inspector' })).toBeDisabled();
-  await expect(page.getByRole('status')).toContainText('Sign in to Basis');
+  await expect(page.getByRole('button', { name: 'Open capture panel' })).toBeDisabled();
+  await expect(page.getByRole('status')).toContainText('Sign in to the connected site');
   const before = [...requests];
   await page.goto(`chrome-extension://${extensionId}/help.html`);
-  await expect(page.getByRole('heading', { name: 'BCF Basis Inspector', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Local result capture', exact: true })).toBeVisible();
   await expectBrandLogo('assets/icon-128.png');
   expect(requests).toEqual(before);
 });
 
-test('page reload discards the capture and a new inspection has only one root', async () => {
+test('page reload discards the capture and a new capture has only one root', async () => {
   await captureCard();
   await page.reload();
   await expect(page.locator(root)).toHaveCount(0);
@@ -229,7 +229,7 @@ test('page reload discards the capture and a new inspection has only one root', 
   await expect(page.getByRole('button', { name: 'Select a result area' })).toBeVisible();
 });
 
-test('SpicyTerminal colors and typography are applied in the inspector, popup and help', async () => {
+test('SpicyTerminal colors and typography are applied in the capture panel, popup and help', async () => {
   await captureCard();
   await expect(page.getByRole('dialog')).toHaveCSS('background-color', 'rgb(6, 9, 11)');
   await expect(editor()).toHaveCSS('color', 'rgb(121, 231, 160)');
@@ -250,7 +250,7 @@ test('expanded input/output layout preserves reviewed edits and stacks on narrow
   await editor().fill(JSON.stringify(revised, null, 2));
   await consent().check();
   const text = await editor().inputValue();
-  const toggle = page.getByRole('button', { name: 'Expanded inspector layout', exact: true });
+  const toggle = page.getByRole('button', { name: 'Expanded capture layout', exact: true });
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   const input = await page.locator(`${root} .input-pane`).boundingBox();

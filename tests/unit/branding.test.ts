@@ -48,7 +48,7 @@ describe('repository logo branding', () => {
     expect(manifest.version).toBe(pkg.version);
     for (const page of ['popup', 'help']) {
       const html = fs.readFileSync(`extension/pages/${page}.html`, 'utf8');
-      expect(html).toMatch(/<img\b[^>]*class="brand-logo"[^>]*src="assets\/icon-128\.png"[^>]*alt="Spicy Extension logo"[^>]*>/);
+      expect(html).toMatch(/<img\b[^>]*class="brand-logo"[^>]*src="assets\/icon-128\.png"[^>]*alt="SpicyExtension logo"[^>]*>/);
       expect(html).toContain(`<span class="version">${pkg.version}</span>`);
     }
   });
@@ -60,7 +60,7 @@ describe('repository logo branding', () => {
     });
     const script = output.outputFiles[0]?.text;
     expect(script).toContain(`data:image/png;base64,${fs.readFileSync('extension/assets/icon-128.png').toString('base64')}`);
-    const controller = fs.readFileSync('extension/src/content/inspector.ts', 'utf8');
+    const controller = fs.readFileSync('extension/src/content/capture-panel.ts', 'utf8');
     expect(controller).toContain("import brandLogo from '../../assets/icon-128.png'");
     expect(controller).toContain('logo.src = brandLogo;');
     expect(controller).toContain('drag.append(logo, titles);');

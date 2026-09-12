@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "BCF Basis Inspector — Local Only",
-  "version": "0.0.2",
-  "description": "Review and locally export a selected Basis result area. No automatic uploads. For connector inspection, not flight search.",
+  "name": "SpicyExtension",
+  "version": "1.0.0",
+  "description": "Review one selected result area and export it locally as JSON. No automatic uploads, no storage, no background capture.",
   "minimum_chrome_version": "120",
   "host_permissions": [
     "https://agentsearch.vercel.app/*"
@@ -12,7 +12,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "BCF — inspect a Basis flight result",
+    "default_title": "SpicyExtension — capture one result area",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "assets/icon-16.png",

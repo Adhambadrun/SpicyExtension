@@ -4,11 +4,11 @@ import path from 'node:path';
 import { generateIcons } from './icons.mjs';
 
 await generateIcons();
-const out = path.resolve('dist/basis-inspector');
+const out = path.resolve('dist/spicyextension');
 const manifest = JSON.parse(await readFile('extension/manifest.json', 'utf8'));
 if (manifest.manifest_version !== 3 || manifest.description.length > 132) throw new Error('Invalid MV3 manifest or description length.');
 if (JSON.stringify(manifest.host_permissions) !== JSON.stringify(['https://agentsearch.vercel.app/*'])) throw new Error('Unexpected host permission.');
-if (manifest.permissions?.length || manifest.web_accessible_resources?.length || manifest.externally_connectable) throw new Error('Unexpected privileged or externally exposed inspector surface.');
+if (manifest.permissions?.length || manifest.web_accessible_resources?.length || manifest.externally_connectable) throw new Error('Unexpected privileged or externally exposed capture panel surface.');
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 await Promise.all([
@@ -24,4 +24,4 @@ for (const file of ['background.js', 'content.js', 'popup.js']) {
   const code = await readFile(`${out}/${file}`, 'utf8');
   if (/\b(?:fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon)\s*\(|\.innerHTML\s*=|\beval\s*\(|new Function\s*\(/.test(code)) throw new Error(`Unexpected network or unsafe execution primitive in ${file}`);
 }
-console.log(`Built ${out}\nInspection tool only — not the finished flight assistant.`);
+console.log(`Built ${out}\nCapture tool only — not the finished flight assistant.`);

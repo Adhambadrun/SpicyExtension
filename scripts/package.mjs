@@ -4,7 +4,7 @@ import path from 'node:path';
 import { deflateRawSync } from 'node:zlib';
 import { crc32 } from './bytes.mjs';
 
-const root = path.resolve('dist/basis-inspector');
+const root = path.resolve('dist/spicyextension');
 const version = JSON.parse(await readFile(`${root}/manifest.json`, 'utf8')).version;
 if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error('Invalid version.');
 async function files(dir, prefix = '') {
@@ -36,6 +36,6 @@ for (const name of entries) {
 const central = Buffer.concat(directory);
 const end = Buffer.alloc(22); end.writeUInt32LE(0x06054b50); end.writeUInt16LE(entries.length, 8); end.writeUInt16LE(entries.length, 10); end.writeUInt32LE(central.length, 12); end.writeUInt32LE(offset, 16);
 await mkdir('artifacts', { recursive: true });
-const output = `artifacts/bcf-basis-inspector-${version}.zip`;
+const output = `artifacts/spicyextension-${version}.zip`;
 await writeFile(output, Buffer.concat([...payloads, central, end]));
 console.log(`${output} — ${entries.length} packaged files. Extract, then load the folder in Chrome.`);
