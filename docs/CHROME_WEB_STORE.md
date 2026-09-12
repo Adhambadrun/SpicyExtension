@@ -345,14 +345,19 @@ First reviews commonly take a few days; items with host permissions sometimes ta
 
 ### Before you press submit
 
-1. `npm ci --ignore-scripts --no-audit --no-fund && npm run check` — icons, store art,
-   screenshots, strict TypeScript, ESLint, 198 tests and the MV3 build.
-2. `npm run release:check` — the committed ZIP equals a fresh build, runtime files only.
-3. **Load `dist/spicyextension` unpacked in real Chrome** and re-test the capture, review
+1. `npm ci --ignore-scripts --no-audit --no-fund && npm run check` — icons, packaged header,
+   store art, screenshots, strict TypeScript, ESLint, 204 tests and the MV3 build.
+2. **Re-photograph the store screenshots: `npm run shots:gen`, then `cp` them into `site/assets/`**
+   (see [WEBSITE.md](WEBSITE.md)). `shots:check` verifies the committed images against
+   `screenshots.json` rather than re-rendering them, so it cannot tell that a UI change has made them
+   out of date — the header brand art changed in this build, and the five committed screenshots still
+   show the previous popup, help and panel headers. Do not upload them as-is.
+3. `npm run release:check` — the committed ZIP equals a fresh build, runtime files only.
+4. **Load `dist/spicyextension` unpacked in real Chrome** and re-test the capture, review
    and export flow, the popup on a non-matching tab, and the packaged help page. This is
    required, not optional — the automated browser suite has not been run in this
    environment, as recorded in [VERIFICATION.md](VERIFICATION.md).
-4. Confirm the privacy and support URLs are live.
+5. Confirm the privacy and support URLs are live.
 
 ---
 

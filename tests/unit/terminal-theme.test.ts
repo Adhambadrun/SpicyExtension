@@ -28,10 +28,11 @@ describe('shared SpicyTerminal styling', () => {
     for (const page of ['popup', 'help']) {
       const html = fs.readFileSync(`extension/pages/${page}.html`, 'utf8');
       expect(html).toContain('<link rel="stylesheet" href="terminal.css">');
-      expect(html).toContain('wordmark-spicy');
-      expect(html).toContain('wordmark-extension');
+      expect(html).toContain('assets/header.png');
     }
     expect(fs.readFileSync('scripts/build.mjs', 'utf8')).toContain("await cp('extension/src/styles/terminal.css', `${out}/terminal.css`)");
     expect(theme).not.toMatch(/@import|https?:\/\/|@font-face/);
+    expect(theme).toContain('.brand-header');
+    expect(theme).not.toMatch(/\.wordmark/);
   });
 });

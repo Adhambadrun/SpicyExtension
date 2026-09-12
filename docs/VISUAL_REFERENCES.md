@@ -24,7 +24,7 @@ The capture panel, popup and help page now share that visual language. In the ca
 
 ## Later artwork — SpicyExtension header
 
-The user supplied a red/white **SpicyExtension** header wordmark, so the product header should use that artwork rather than say SpicyTerminal. The graphic is visible inline, but its binary is not present in the accessible workspace or remote tree. Root `header.png` has been requested for exact embedding. A typographic label is currently interim and is not claimed to be the attached image; the user subsequently approved proceeding with the current capture panel while this artwork remains follow-up work.
+The user supplied a red/white **SpicyExtension** header wordmark, so the product header should use that artwork rather than say SpicyTerminal. The graphic is visible inline, but its binary is not present in the accessible workspace or remote tree. Root `header.png` is therefore **generated** from the brand tokens by `scripts/header.mjs` and embedded on every surface, replacing the interim typographic label; it is documented as generated art and is not claimed to be the attached image. Supplying the real file and running `npm run header:gen` retires the substitution; the original artwork remains the intended master.
 
 ## Repository icon
 

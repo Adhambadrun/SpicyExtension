@@ -87,5 +87,5 @@ select { background: var(--spicy-bg); color: var(--spicy-text); border: 1px soli
 .review-check input { accent-color: var(--spicy-output); width: 16px; height: 16px; flex: none; margin: 1px 0 0; }
 .small-button { min-height: 30px; padding: 4px 8px; font-size: 10px; }
 @media (max-width: 900px) { .panel.expanded .terminal-grid { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 520px) { .panel { top: 10px; right: 12px; } .wordmark { font-size: 20px; } .terminal-pane { padding: 12px; } .header { padding: 10px; } .actions .button { flex-grow: 1; } }
+@media (max-width: 520px) { .panel { top: 10px; right: 12px; } .brand-header { width: 168px; height: 21px; } .terminal-pane { padding: 12px; } .header { padding: 10px; } .actions .button { flex-grow: 1; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

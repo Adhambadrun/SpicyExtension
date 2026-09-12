@@ -18,7 +18,7 @@ const manifest = JSON.parse(read('extension/manifest.json').toString('utf8')) as
   name: string; version: string; description: string; manifest_version: number;
 };
 // scripts/build.mjs flattens extension/pages to the archive root, which is what the manifest references.
-const RUNTIME = ['assets/icon-16.png', 'assets/icon-32.png', 'assets/icon-48.png', 'assets/icon-128.png',
+const RUNTIME = ['assets/header.png', 'assets/icon-16.png', 'assets/icon-32.png', 'assets/icon-48.png', 'assets/icon-128.png',
   'background.js', 'content.js', 'help.html', 'manifest.json', 'pages.css', 'popup.html',
   'popup.js', 'terminal.css'].sort((a, b) => a.localeCompare(b, 'en'));
 

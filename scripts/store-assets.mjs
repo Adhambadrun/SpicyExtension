@@ -33,7 +33,7 @@ const SPECS = Object.freeze([
 /** Retired sizes that must not linger in store/ and get uploaded into the wrong slot. */
 const RETIRED = Object.freeze(['marquee-1280x800.png']);
 
-async function tokens() {
+export async function tokens() {
   const css = await readFile(THEME, 'utf8');
   const read = (name) => {
     const value = css.match(new RegExp(`--spicy-${name}:\\s*(#[a-f0-9]{6});`))?.[1];
@@ -58,7 +58,7 @@ function line({ x, y, text, size, color, mono = true, factor = 0.62, spacing = 0
 }
 
 /** One <text> with two <tspan>s keeps the two halves of the wordmark adjacent on any font. */
-function brand({ x, y, size, c, width, anchor = 'start' }) {
+export function brand({ x, y, size, c, width, anchor = 'start' }) {
   fits('SpicyExtension', size, 0.62, width);
   return `<text x="${x}" y="${y}" font-family="'Arial Black', 'Trebuchet MS', sans-serif" font-size="${size}" font-weight="900" font-style="italic" text-anchor="${anchor}" letter-spacing="${-size / 23}">` +
     `<tspan fill="${c.red}">Spicy</tspan><tspan fill="${c.text}">Extension</tspan></text>`;
