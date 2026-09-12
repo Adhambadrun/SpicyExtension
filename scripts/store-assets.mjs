@@ -97,11 +97,15 @@ function marquee(c) {
 </svg>`;
 }
 
-/** The 128px store icon is the untouched logo on the brand background, with no added edge. */
-function iconCanvas(c) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <rect width="128" height="128" fill="${c.bg}"/>
-</svg>`;
+/**
+ * The 128px store icon is the untouched logo on a fully transparent 128x128 canvas.
+ * Chrome's image guidelines ask for ~96x96 of artwork with the remaining pixels as transparent
+ * padding, no added edge, and an image that reads on both light and dark store backgrounds.
+ */
+const ICON_CANVAS = 128;
+const ICON_ARTWORK = 96;
+function iconCanvas() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${ICON_CANVAS}" height="${ICON_CANVAS}" viewBox="0 0 ${ICON_CANVAS} ${ICON_CANVAS}"></svg>`;
 }
 
 async function logoLayer(logo, size) {
@@ -123,8 +127,8 @@ async function generate({ check = false } = {}) {
   const version = JSON.parse(await readFile(MANIFEST, 'utf8')).version;
   const c = await tokens();
 
-  const icon = await encode(sharp(Buffer.from(iconCanvas(c)))
-    .composite([{ input: await logoLayer(logo, 112), gravity: 'center' }]));
+  const icon = await encode(sharp(Buffer.from(iconCanvas()))
+    .composite([{ input: await logoLayer(logo, ICON_ARTWORK), gravity: 'center' }]));
 
   const small = await encodeOpaque(sharp(Buffer.from(smallTile(c)))
     .composite([{ input: await logoLayer(logo, 150), left: 145, top: 18 }]), c.bg);
@@ -156,6 +160,8 @@ async function generate({ check = false } = {}) {
       }
       // Promo tiles are uploaded as JPEG or 24-bit PNG; an alpha channel gets the image rejected.
       if (spec.kind !== 'store-icon' && meta.hasAlpha) throw new Error(`store/${spec.file} must be a 24-bit PNG without an alpha channel.`);
+      // The store icon is the opposite: it needs transparent padding around ~96x96 of artwork.
+      if (spec.kind === 'store-icon' && !meta.hasAlpha) throw new Error('store/icon-128.png must keep its transparent padding.');
     }
     console.log(`Store listing images match logo.png: ${SPECS.map((spec) => `${spec.file} ${spec.width}x${spec.height}`).join(', ')}.`);
     return;

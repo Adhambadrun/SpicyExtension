@@ -16,12 +16,43 @@ vercel.json          → output directory, caching and security headers
 
 ## Deploying from GitHub
 
+`vercel.json` does all the configuration:
+
+```json
+{
+  "framework": null,
+  "installCommand": "echo 'Static site: no dependencies to install.'",
+  "buildCommand": "echo 'Static site: nothing to build; publishing site/ as-is.'",
+  "outputDirectory": "site"
+}
+```
+
 1. In Vercel, choose **Add New… → Project** and import `Adhambadrun/SpicyExtension`.
-2. Framework preset: **Other**. There is no build step — `vercel.json` sets
-   `"outputDirectory": "site"`, so Vercel publishes the folder as static files.
-3. Leave the build command empty and deploy.
+2. Framework preset: **Other**. Leave the Build and Install command overrides **switched
+   off** — `vercel.json` supplies them, and a UI override beats the file.
+3. Deploy. A healthy log prints *"Static site: nothing to build"* and uploads from `site`.
 4. Under **Settings → Domains**, confirm the project answers on `spicyextension.vercel.app`.
-5. Every push to the default branch redeploys automatically.
+5. Every push to the production branch redeploys automatically.
+
+### If the build fails
+
+**`No Output Directory named "public" found`** means Vercel ran the repository's
+`npm run build`, which is the *extension* bundler (it writes `dist/spicyextension`), and
+then looked for a `public/` folder. Two causes:
+
+- **The deployed commit predates `vercel.json`.** Check the "Cloning … Commit:" line at the
+  top of the log against the commit that added this file, and make sure the Production
+  Branch in **Settings → Git** is the branch that actually contains it.
+- **The project has UI command overrides saved.** Clear them in
+  **Settings → Build & Deployment** so `vercel.json` takes effect.
+
+Redeploy with "Use existing Build Cache" unticked, then confirm:
+
+```bash
+curl -sSI https://spicyextension.vercel.app/ | head -1
+curl -sSI https://spicyextension.vercel.app/privacy.html | head -1
+curl -sSI https://spicyextension.vercel.app/support.html | head -1
+```
 
 Nothing secret is involved: the site is static, sets no cookies, loads no third-party script, font or
 tracker, and makes no network requests of its own. `vercel.json` sends `X-Content-Type-Options`,
