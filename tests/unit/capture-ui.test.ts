@@ -7,6 +7,7 @@ import { parseCapture } from '../../extension/src/core/snapshot';
 vi.mock('../../extension/src/styles/capture-panel.css', () => ({ default: '' }));
 vi.mock('../../extension/src/styles/terminal.css', () => ({ default: '' }));
 vi.mock('../../extension/assets/icon-128.png', () => ({ default: '/unit-test-logo.png' }));
+vi.mock('../../extension/assets/header.png', () => ({ default: '/unit-test-header.png' }));
 
 function shadow(): ShadowRoot {
   const root = document.getElementById(CAPTURE_ROOT_ID)?.shadowRoot;
@@ -53,7 +54,9 @@ describe('SpicyTerminal capture panel structure', () => {
   it('starts compact with separate input/output regions and no captured data', () => {
     expect(node<HTMLElement>('.input-pane').getAttribute('aria-label')).toBe('Capture input');
     expect(node<HTMLElement>('.output-pane').getAttribute('aria-label')).toBe('Capture output');
-    expect(node<HTMLElement>('.wordmark').textContent).toBe('SpicyExtension');
+    expect(node<HTMLImageElement>('.brand-header').getAttribute('src')).toBe('/unit-test-header.png');
+    expect(node<HTMLImageElement>('.brand-header').alt).toBe('');
+    expect(shadow().querySelector('.wordmark-spicy')).toBeNull();
     expect(node<HTMLElement>('.empty-output').hidden).toBe(false);
     expect(node<HTMLElement>('.review-output').hidden).toBe(true);
     expect(node<HTMLTextAreaElement>('.editor').value).toBe('');

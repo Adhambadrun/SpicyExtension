@@ -33,7 +33,7 @@ const SPECS = Object.freeze([
 /** Retired sizes that must not linger in store/ and get uploaded into the wrong slot. */
 const RETIRED = Object.freeze(['marquee-1280x800.png']);
 
-async function tokens() {
+export async function tokens() {
   const css = await readFile(THEME, 'utf8');
   const read = (name) => {
     const value = css.match(new RegExp(`--spicy-${name}:\\s*(#[a-f0-9]{6});`))?.[1];
@@ -58,7 +58,7 @@ function line({ x, y, text, size, color, mono = true, factor = 0.62, spacing = 0
 }
 
 /** One <text> with two <tspan>s keeps the two halves of the wordmark adjacent on any font. */
-function brand({ x, y, size, c, width, anchor = 'start' }) {
+export function brand({ x, y, size, c, width, anchor = 'start' }) {
   fits('SpicyExtension', size, 0.62, width);
   return `<text x="${x}" y="${y}" font-family="'Arial Black', 'Trebuchet MS', sans-serif" font-size="${size}" font-weight="900" font-style="italic" text-anchor="${anchor}" letter-spacing="${-size / 23}">` +
     `<tspan fill="${c.red}">Spicy</tspan><tspan fill="${c.text}">Extension</tspan></text>`;
@@ -98,14 +98,89 @@ function marquee(c) {
 }
 
 /**
- * The 128px store icon is the untouched logo on a fully transparent 128x128 canvas.
- * Chrome's image guidelines ask for ~96x96 of artwork with the remaining pixels as transparent
- * padding, no added edge, and an image that reads on both light and dark store backgrounds.
+ * The 128px store icon is the untouched logo on a transparent 128x128 canvas, plus the subtle
+ * white outer glow Chrome prescribes for a dark icon. Its guidelines ask for four things:
+ *   1. 96x96 of artwork for a square icon, with 16px of transparent padding per side;
+ *   2. no edge drawn around the 128x128 image, because the UI adds its own;
+ *   3. an image that works on both light AND dark backgrounds;
+ *   4. no large drop shadow (the UI adds shadows; small ones for contrast are fine).
+ * The brand tile is near-black, so on a dark store theme it has no silhouette at all: rule 3 is
+ * the one that needs help, and the guide's own remedy is "if your icon is mostly dark, consider
+ * adding a subtle white outer glow". The glow is kept inside the padding and the outermost
+ * ICON_SAFE_RING pixels are forced fully transparent, so rules 1 and 2 still hold exactly and
+ * rule 4 is met — a blurred halo is a shadow-scale detail, not a cast drop shadow.
+ * The logo itself is never cropped, redrawn or recoloured.
  */
 const ICON_CANVAS = 128;
 const ICON_ARTWORK = 96;
+const ICON_PADDING = (ICON_CANVAS - ICON_ARTWORK) / 2;
+const ICON_SAFE_RING = 4;
+const ICON_GLOW_SIGMA = 3.2;
+const ICON_GLOW_ALPHA = 0.5;
+/** Ceiling for halo alpha in the padding band: past this the glow reads as an added edge/shadow. */
+const ICON_GLOW_CEILING = 140;
 function iconCanvas() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${ICON_CANVAS}" height="${ICON_CANVAS}" viewBox="0 0 ${ICON_CANVAS} ${ICON_CANVAS}"></svg>`;
+}
+
+/** White halo for the artwork, blurred into the padding band and hard-clipped at the safe ring. */
+async function glowLayer() {
+  const white = { r: 255, g: 255, b: 255, alpha: 0 };
+  const glow = await sharp({
+    create: { width: ICON_ARTWORK, height: ICON_ARTWORK, channels: 4, background: { ...white, alpha: ICON_GLOW_ALPHA } },
+  })
+    // Keep the halo RGB pinned to white so blurring cannot drag black in from the transparent
+    // surround: the padded region is white at alpha 0, so only the alpha channel varies.
+    .extend({ top: ICON_PADDING, bottom: ICON_PADDING, left: ICON_PADDING, right: ICON_PADDING, background: white })
+    .blur(ICON_GLOW_SIGMA)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const { data, info } = glow;
+  const channels = info.channels;
+  for (let y = 0; y < info.height; y += 1) {
+    for (let x = 0; x < info.width; x += 1) {
+      // Rule 2: nothing in the outer ring, so the canvas edge stays genuinely transparent.
+      if (x < ICON_SAFE_RING || y < ICON_SAFE_RING || x >= info.width - ICON_SAFE_RING || y >= info.height - ICON_SAFE_RING) {
+        data[y * info.width * channels + x * channels + 3] = 0;
+      }
+    }
+  }
+  return sharp(data, { raw: info }).png().toBuffer();
+}
+
+/**
+ * Geometry of a finished icon against Chrome's rules. Returns the box of fully opaque artwork and
+ * the alpha state of the outer ring; `store:check` asserts on these so the guidelines are enforced
+ * rather than only claimed in a comment.
+ */
+export async function auditStoreIconGeometry(buffer) {
+  const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = info;
+  const alphaAt = (x, y) => data[(y * width + x) * channels + 3];
+  let box = { left: width, top: height, right: -1, bottom: -1 };
+  let ringMax = 0;
+  let outsideMax = 0;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const a = alphaAt(x, y);
+      if (a === 255) {
+        if (x < box.left) box.left = x;
+        if (x > box.right) box.right = x;
+        if (y < box.top) box.top = y;
+        if (y > box.bottom) box.bottom = y;
+      }
+      const inRing = x < ICON_SAFE_RING || y < ICON_SAFE_RING || x >= width - ICON_SAFE_RING || y >= height - ICON_SAFE_RING;
+      if (inRing && a > ringMax) ringMax = a;
+      const inArtwork = x >= ICON_PADDING && x < width - ICON_PADDING && y >= ICON_PADDING && y < height - ICON_PADDING;
+      if (!inArtwork && a > outsideMax) outsideMax = a;
+    }
+  }
+  const empty = box.right < 0;
+  return {
+    opaqueBox: empty ? null : { x: box.left, y: box.top, width: box.right - box.left + 1, height: box.bottom - box.top + 1 },
+    ringMaxAlpha: ringMax,
+    paddingMaxAlpha: outsideMax,
+  };
 }
 
 async function logoLayer(logo, size) {
@@ -128,7 +203,10 @@ async function generate({ check = false } = {}) {
   const c = await tokens();
 
   const icon = await encode(sharp(Buffer.from(iconCanvas()))
-    .composite([{ input: await logoLayer(logo, ICON_ARTWORK), gravity: 'center' }]));
+    .composite([
+      { input: await glowLayer(), gravity: 'center' },
+      { input: await logoLayer(logo, ICON_ARTWORK), gravity: 'center' },
+    ]));
 
   const small = await encodeOpaque(sharp(Buffer.from(smallTile(c)))
     .composite([{ input: await logoLayer(logo, 150), left: 145, top: 18 }]), c.bg);
@@ -160,8 +238,27 @@ async function generate({ check = false } = {}) {
       }
       // Promo tiles are uploaded as JPEG or 24-bit PNG; an alpha channel gets the image rejected.
       if (spec.kind !== 'store-icon' && meta.hasAlpha) throw new Error(`store/${spec.file} must be a 24-bit PNG without an alpha channel.`);
-      // The store icon is the opposite: it needs transparent padding around ~96x96 of artwork.
-      if (spec.kind === 'store-icon' && !meta.hasAlpha) throw new Error('store/icon-128.png must keep its transparent padding.');
+      // The store icon is the opposite: it needs transparent padding around the 96x96 artwork.
+      if (spec.kind === 'store-icon') {
+        if (!meta.hasAlpha) throw new Error('store/icon-128.png must keep its transparent padding.');
+        // The Dashboard accepts at most 1MB for the store icon.
+        if (committed.byteLength > 1_048_576) throw new Error(`store/icon-128.png must stay under 1MB, got ${committed.byteLength} bytes.`);
+        const geometry = await auditStoreIconGeometry(committed);
+        const expected = { x: ICON_PADDING, y: ICON_PADDING, width: ICON_ARTWORK, height: ICON_ARTWORK };
+        // Chrome: "The actual icon size should be 96x96 (for square icons); an additional 16
+        // pixels per side should be transparent padding."
+        if (!geometry.opaqueBox || geometry.opaqueBox.x !== expected.x || geometry.opaqueBox.y !== expected.y
+          || geometry.opaqueBox.width !== expected.width || geometry.opaqueBox.height !== expected.height) {
+          throw new Error(`store/icon-128.png must hold exactly ${ICON_ARTWORK}x${ICON_ARTWORK} of artwork centred in a ${ICON_CANVAS}x${ICON_CANVAS} canvas (transparent padding of ${ICON_PADDING}px per side), got ${JSON.stringify(geometry.opaqueBox)}.`);
+        }
+        // Chrome: "Don't put an edge around the 128x128 image; the UI might add edges."
+        if (geometry.ringMaxAlpha !== 0) throw new Error(`store/icon-128.png must leave its outer ${ICON_SAFE_RING} pixels fully transparent so the store UI can add its own edge; found alpha up to ${geometry.ringMaxAlpha}.`);
+        // Chrome: "The image should work well on both light and dark backgrounds." The brand tile
+        // is near-black, so the faint outer glow is what keeps a silhouette on a dark theme; a
+        // missing one means the icon disappeared into the page, an obvious one breaks rule 2.
+        if (geometry.paddingMaxAlpha === 0) throw new Error('store/icon-128.png has no outer glow: a near-black tile on a transparent canvas has no readable silhouette on dark store backgrounds.');
+        if (geometry.paddingMaxAlpha > ICON_GLOW_CEILING) throw new Error(`store/icon-128.png outer glow is too strong (alpha ${geometry.paddingMaxAlpha}/255, ceiling ${ICON_GLOW_CEILING}); it must stay subtle.`);
+      }
     }
     console.log(`Store listing images match logo.png: ${SPECS.map((spec) => `${spec.file} ${spec.width}x${spec.height}`).join(', ')}.`);
     return;
@@ -191,4 +288,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   await generate({ check: args.includes('--check') });
 }
 
-export { generate, SPECS };
+export { generate, SPECS, ICON_GLOW_CEILING };

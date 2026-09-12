@@ -78,6 +78,15 @@ cp store/screenshots/3-review-before-sharing.png   site/assets/shot-review.png
 cp store/screenshots/4-toolbar-popup.png           site/assets/shot-popup.png
 ```
 
+`site/assets/icon-128.png` is likewise a copy — of the store icon, which the site uses as its
+favicon and header mark. Refresh it whenever the store art is regenerated, so the listing and the
+site never show two versions of the brand:
+
+```bash
+npm run store:gen
+cp store/icon-128.png site/assets/icon-128.png
+```
+
 ## Verifying the domain for the listing
 
 The Dashboard's **Official URL** dropdown only offers domains you own in

@@ -1,6 +1,7 @@
 import css from '../styles/capture-panel.css';
 import terminalCss from '../styles/terminal.css';
 import brandLogo from '../../assets/icon-128.png';
+import brandHeader from '../../assets/header.png';
 import { DISPOSE_EVENT, CAPTURE_ROOT_ID, byteLength, sourcePath } from '../core/policy';
 import { captureElement, selectionProblem } from '../core/sanitize';
 import { captureFilename, parseCapture, serializeCapture } from '../core/snapshot';
@@ -78,8 +79,14 @@ class CapturePanel {
     drag.setAttribute('aria-label', 'Move panel. Drag or use arrow keys.');
     drag.title = 'Drag to move · arrow keys when focused';
     const titles = element('div');
-    const wordmark = element('div', 'wordmark');
-    wordmark.append(element('span', 'wordmark-spicy', 'Spicy'), element('span', 'wordmark-extension', 'Extension'));
+    // The brand lockup is local packaged art, not interim typography. The adjacent logo already
+    // carries the accessible name, so the wordmark itself is decorative to a screen reader.
+    const wordmark = element('img', 'brand-header');
+    wordmark.src = brandHeader; // Build-time data URL: no request, host grant or web-accessible resource.
+    wordmark.alt = '';
+    wordmark.width = 208;
+    wordmark.height = 26;
+    wordmark.draggable = false;
     titles.append(wordmark, element('div', 'overline', 'LOCAL CAPTURE · JSON'));
     const logo = element('img', 'brand-logo');
     logo.src = brandLogo; // Build-time data URL: no request, host grant or web-accessible resource.

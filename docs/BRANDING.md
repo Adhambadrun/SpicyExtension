@@ -8,7 +8,9 @@ The root [`logo.png`](../logo.png), supplied on `main` in commit `3627888`, is t
 2056971c95da6f04ddf546c8409100604302c3deb5e47a7b29418ed220d44dc9  logo.png
 ```
 
-The user also supplied a **SpicyExtension** red-and-white header wordmark inline. Its exact binary is not accessible in the workspace or current GitHub tree. The requested next step is to add it as root `header.png`, then embed the actual image. **The current typographic wordmark is interim, not a recreation of or substitute for the supplied graphic.** No AI-generated replacement has been made. The user subsequently approved proceeding with the current capture panel, with the interim header and browser-test limitations documented. The exact artwork remains follow-up work, not completed branding.
+The user also supplied a **SpicyExtension** red-and-white header wordmark inline; its binary never reached the workspace or the GitHub tree. Root `header.png` now exists, but it is **generated** art, rendered by `scripts/header.mjs` from the same `terminal.css` tokens and the same `brand()` lockup the store promo tiles use, and it replaces the interim HTML typography in the popup, the help page and the capture panel.
+
+It is explicitly **not** a recreation of the supplied graphic and must not be described as it. When the real artwork is available, drop it in as `header.png`, run `npm run header:gen` to re-derive `extension/assets/header.png`, and let `npm run header:check` and the branding tests verify the pair. Because the wordmark is laid out with the machine's system font, regenerating on another host reproduces the geometry and palette but not the bytes; the committed `header.png` is the shipped artwork, which is why `--check` validates the packaged derivative against the committed master instead of re-rendering it.
 
 ## SpicyTerminal visual language
 
@@ -25,13 +27,21 @@ The later SpicyTerminal screenshot takes precedence over the earlier navy/plum s
 ## Current icon use and generation
 
 - Chrome toolbar/action and extension management: derived 16, 32, 48 and 128px PNGs in `extension/assets/`.
-- Popup, packaged help and floating panel header: high-resolution local derivative plus interim text branding while the exact header file is pending.
+  The 128px file is the complete master artwork. 16, 32 and 48 get one size-scoped simplification: the
+  corner signature is resolved into the plain tile behind it, then the mark is supersampled at 4x and
+  unsharpened. A full master squeezed into 16px leaves a grey smudge that reads as an artefact rather
+  than a signature; measured inside that region the icon's luminance drops to within 1.3x of the plain
+  tile, from roughly 15x for the naive downscale. Nothing else changes — no crop, no recolouring, and the
+  mask is refused outright if it would ever touch the red mark (`verifyIconSource`).
+- Popup, packaged help and floating panel header: `extension/assets/header.png`, the packaged local copy of the generated `header.png` wordmark, embedded by the content bundle as a build-time data URL like the logo. It stands in for the supplied artwork and is documented as generated.
 - The content bundle embeds its PNG as a build-time data URL. No remote logo request, extra host permission or `web_accessible_resources` entry is added. The original 1.1 MB PNG and the image-processing dependency are not shipped in the runtime.
 
 ```bash
 npm ci --ignore-scripts --no-audit --no-fund
 npm run icons         # derive all four icons from logo.png
 npm run icons:check   # read-only check; fails for missing/stale derivatives
+npm run header:gen    # render header.png and derive extension/assets/header.png
+npm run header:check  # dimensions, brand-colour discipline, and the packaged copy matching header.png
 npm run check         # includes branding, contrast and structural UI regressions
 npm run package       # rebuilds icons and packages the capture build
 ```
@@ -60,6 +70,17 @@ The promo art is generated at the sizes the Dashboard actually accepts — `stor
 removed on regeneration so it cannot be uploaded into the wrong slot. Promo tiles are written
 without an alpha channel, because the Dashboard rejects one.
 
+The store icon follows [Chrome's image
+guidelines](https://developer.chrome.com/docs/webstore/images#icons) exactly: 96x96 of the
+unmodified logo centred in 16px of transparent padding on a 128x128 PNG. Because the brand tile
+is near-black, it had no silhouette at all on a dark store background, so the guide's own remedy
+is applied — a subtle white outer glow, blurred into the padding band and hard-clipped so the
+outermost 4 pixels stay fully transparent. Nothing is added to the artwork itself and no border is
+drawn on the canvas, which the guidelines also forbid. `npm run store:check` measures the result
+(`auditStoreIconGeometry` in `scripts/store-assets.mjs`) and fails on a full-bleed icon, a painted
+edge, a missing glow or a glow above its ceiling, so the layout cannot drift into a rejected
+upload. `site/assets/icon-128.png` is a copy of this file and is refreshed with it.
+
 Screenshots are **not** drawn. `scripts/screenshots.mjs` loads the real compiled
 `dist/spicyextension/content.js`, drives it through the shipped `BEGIN_CAPTURE` listener over the
 committed synthetic fixture, also photographs the real packaged popup and help pages, and writes
@@ -71,8 +92,10 @@ artwork and the product UI cannot drift into separate palettes. Copy is width-ch
 rendering: generation fails instead of letting text run off the canvas, because the system monospace
 font differs between machines. `store/store-assets.json` records the exact `logo.png` hash and
 version each image was derived for; a stale pair therefore breaks `npm run check`. No AI-generated
-or hand-redrawn substitute is used, and the interim typographic wordmark remains interim until the
-real `header.png` is available. See [CHROME_WEB_STORE.md](CHROME_WEB_STORE.md).
+or hand-redrawn substitute is used for the logo or the screenshots; the header and banner wordmarks are
+set typographically from the theme tokens, and `header.png` is generated art standing in for the supplied
+graphic rather than a recreation of it (see [Source artwork](#source-artwork)). See
+[CHROME_WEB_STORE.md](CHROME_WEB_STORE.md).
 
 ## Committed publish inputs
 

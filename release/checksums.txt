@@ -1,1 +1,1 @@
-3f7e9ee38eaf9e65fa78f32195d91200545c0f97d051b2bde4e0c078ed6f958f  spicyextension-1.0.0.zip
+7ecb059cb2426795131f4ceea8cf85f332402e798284ba8cf709d5e08ecf08eb  spicyextension-1.0.0.zip

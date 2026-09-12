@@ -18,16 +18,19 @@ build intended for upload.
 | Check | Actual result |
 | --- | --- |
 | Runtime / dependencies | Node 22.22.3 / npm 10.9.8; clean `npm ci --ignore-scripts --no-audit --no-fund` with the exact lockfile. |
-| `npm run icons:check` | Pass — 16/32/48/128px PNGs match the unchanged repository `logo.png`. |
+| `npm run icons:check` | Pass — 16/32/48/128px PNGs reproduce from the unchanged repository `logo.png`: the 128 is the plain master, and 16/32/48 are the same artwork with only the corner signature resolved into plain tile. In-region luminance at those sizes is within 1.3x of the neighbouring tile, against roughly 15x for the naive downscale. |
 | `npm run store:check` | Pass — `store/icon-128.png`, `store/promo-440x280.png` and `store/marquee-1400x560.png` match their recorded bytes, the exact PNG sizes the Dashboard accepts, and the current `logo.png` hash and manifest version. The promo tiles are verified to carry no alpha channel. |
+| Store icon guideline audit | Pass — `store/icon-128.png` measures a 96x96 fully opaque artwork box at `+16,+16` inside a 128x128 PNG, an outer 4px ring at alpha 0 and a padding glow of 56/255, matching Chrome's image guidelines. Composited four pixels outside the tile the silhouette contrast is 1.000:1 on `#ffffff` (glow invisible on light), 1.006:1 on `#f1f3f4`, and 1.172:1 on `#202124` against 1.000:1 before the glow. The gate was verified to reject a full-bleed logo, a painted-on edge and a missing glow, each with its own error, and to pass again once the real file was restored. Four tests in `tests/unit/publish.test.ts` pin the geometry and those three failure shapes. |
 | `npm run shots:check` | Pass — five committed 1280x800 opaque PNG screenshots, current for this version. |
 | `npm run typecheck` | Pass — strict TypeScript compilation. |
 | `npm run lint` | Pass — zero ESLint errors. |
-| `npm test` | Pass — **187 tests across 11 files**, including the naming, package, store-asset and screenshot-provenance suites. |
+| `npm run header:check` | Pass — `header.png` is a 1200x150 transparent PNG at 15.4% ink, 36% brand-red / 64% off-white with zero pixels outside the theme tokens, and `extension/assets/header.png` is exactly its 0.4x derivative. |
+| `npm test` | Pass — **204 tests across 11 files**, including the naming, package, branding (icons + generated header), store-asset and screenshot-provenance suites. |
 | `npm run naming` coverage | The naming suite scans 60 tracked text files by content and by file name; the two supplied originals are exempt only as received filenames. |
 | `npm run build` | Pass — MV3 bundle in `dist/spicyextension` with the shared local SpicyTerminal stylesheet; permission/network/unsafe-execution build guards intact. |
-| `npm run package` | Pass — 12 runtime files, **50,088-byte** `artifacts/spicyextension-1.0.0.zip`. |
+| `npm run package` | Pass — 13 runtime files (the packaged `assets/header.png` is new), **83,987-byte** `release/spicyextension-1.0.0.zip`, SHA-256 `7ecb059cb2426795131f4ceea8cf85f332402e798284ba8cf709d5e08ecf08eb`. |
 | `npm run release:check` | Pass — the committed `release/spicyextension-1.0.0.zip` is byte-identical to a fresh build, `manifest.json` is at the archive root, no source/test/fixture/map/lockfile is inside, and the embedded manifest equals the repository manifest. |
+| **Not re-run here** — store screenshots | The five committed `store/screenshots/*.png` still show the *previous* popup/help/panel header, because re-photographing them needs Chromium and `npx playwright install chromium` cannot reach `cdn.playwright.dev` from this environment (`ECONNRESET`). `shots:check` passes because it verifies recorded hashes rather than re-rendering, so it cannot detect this class of staleness. Run `npm run shots:gen` and refresh `site/assets/` before uploading — recorded as step 2 of [CHROME_WEB_STORE.md](CHROME_WEB_STORE.md). The screenshots were **not** redrawn or mocked up to hide this. |
 | Determinism | Packaging twice produced the identical SHA-256 below. |
 | ZIP structure | `scripts/bytes.mjs` inflates every entry and verifies its CRC-32 and size; a corrupt or substituted entry fails the check. |
 | `npx playwright test --list` | Pass — **12 browser tests discovered**, not executed. |

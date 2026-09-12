@@ -244,7 +244,11 @@ test('SpicyTerminal colors and typography are applied in the capture panel, popu
   await expect(page.getByRole('dialog')).toHaveCSS('background-color', 'rgb(6, 9, 11)');
   await expect(editor()).toHaveCSS('color', 'rgb(121, 231, 160)');
   await expect(editor()).toHaveCSS('font-family', /monospace/);
-  await expect(page.locator(`${root} .wordmark-spicy`)).toHaveCSS('color', 'rgb(255, 53, 75)');
+  const header = page.locator(`${root} .brand-header`);
+  await expect(header).toHaveAttribute('src', /^data:image\/png;base64,/);
+  await expect.poll(() => header.evaluate((node: HTMLImageElement) => ({
+    complete: node.complete, width: node.naturalWidth, height: node.naturalHeight,
+  }))).toEqual({ complete: true, width: 480, height: 60 });
   for (const file of ['popup.html', 'help.html']) {
     await page.goto(`chrome-extension://${extensionId}/${file}`);
     await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(6, 9, 11)');

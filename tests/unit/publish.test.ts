@@ -7,16 +7,18 @@ import crypto from 'node:crypto';
 import sharp from 'sharp';
 import { describe, expect, it } from 'vitest';
 import { zipData, zipEntries } from '../../scripts/bytes.mjs';
+import { auditStoreIconGeometry, ICON_GLOW_CEILING as GLOW_CEILING } from '../../scripts/store-assets.mjs';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const read = (relative: string): Buffer => fs.readFileSync(path.join(root, relative));
 const sha256 = (data: Buffer): string => crypto.createHash('sha256').update(data).digest('hex');
+const channelOf = (value: number): number => (value / 255 <= 0.03928 ? value / 255 / 12.92 : ((value / 255 + 0.055) / 1.055) ** 2.4);
 
 const manifest = JSON.parse(read('extension/manifest.json').toString('utf8')) as {
   name: string; version: string; description: string; manifest_version: number;
 };
 // scripts/build.mjs flattens extension/pages to the archive root, which is what the manifest references.
-const RUNTIME = ['assets/icon-16.png', 'assets/icon-32.png', 'assets/icon-48.png', 'assets/icon-128.png',
+const RUNTIME = ['assets/header.png', 'assets/icon-16.png', 'assets/icon-32.png', 'assets/icon-48.png', 'assets/icon-128.png',
   'background.js', 'content.js', 'help.html', 'manifest.json', 'pages.css', 'popup.html',
   'popup.js', 'terminal.css'].sort((a, b) => a.localeCompare(b, 'en'));
 
@@ -84,6 +86,64 @@ describe('derived store listing images', () => {
     '%s has no alpha channel, which the promo tile slots reject', async (file) => {
       expect((await sharp(read(`store/${file}`)).metadata()).hasAlpha).toBe(false);
     });
+
+  // Chrome's image guidelines for the store icon: https://developer.chrome.com/docs/webstore/images#icons
+  // 96x96 of artwork for a square icon, 16px of transparent padding per side, no edge drawn on the
+  // 128x128 canvas, and an image that reads on both light and dark backgrounds.
+  it('lays the icon out as Chrome specifies: 96x96 artwork inside transparent padding', async () => {
+    const geometry = await auditStoreIconGeometry(read('store/icon-128.png'));
+    expect(geometry.opaqueBox).toEqual({ x: 16, y: 16, width: 96, height: 96 });
+    // "Don't put an edge around the 128x128 image; the UI might add edges."
+    expect(geometry.ringMaxAlpha).toBe(0);
+    // "If your icon is mostly dark, consider adding a subtle white outer glow": the brand tile is
+    // near-black, so it needs the glow to keep a silhouette on a dark store theme — and the glow has
+    // to stay subtle so it never reads as a cast drop shadow or an added edge.
+    expect(geometry.paddingMaxAlpha).toBeGreaterThan(0);
+    expect(geometry.paddingMaxAlpha).toBeLessThanOrEqual(GLOW_CEILING);
+  });
+
+  it('reads on a dark background as well as it does on a light one', async () => {
+    const icon = read('store/icon-128.png');
+    const luminance = async (background: string): Promise<number> => {
+      const { data, info } = await sharp(icon).flatten({ background }).raw().toBuffer({ resolveWithObject: true });
+      const at = (x: number, y: number): number => {
+        const i = (y * info.width + x) * info.channels;
+        const byte = (o: number): number => data[i + o] ?? 0;
+        return 0.2126 * channelOf(byte(0)) + 0.7152 * channelOf(byte(1)) + 0.0722 * channelOf(byte(2));
+      };
+      // Padding four pixels outside the tile: the only place the silhouette can be seen from.
+      return at(12, 64);
+    };
+    const dark = await luminance('#202124');
+    const background = 0.2126 * channelOf(0x20) + 0.7152 * channelOf(0x21) + 0.0722 * channelOf(0x24);
+    // The glow must lift the halo off a dark theme, yet stay invisible on a light one.
+    expect(dark).toBeGreaterThan(background * 1.08);
+    const onWhite = await luminance('#ffffff');
+    expect(onWhite).toBeGreaterThanOrEqual(0.999);
+  });
+
+  it('measures the violations store:check rejects, rather than assuming good artwork', async () => {
+    const canvas = (size: number, input: Buffer): Promise<Buffer> => sharp({
+      create: { width: size, height: size, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+    }).composite([{ input, gravity: 'center' }]).png().toBuffer();
+
+    // Artwork scaled to fill the canvas: no transparent padding, and the tile draws its own edge.
+    const fullBleed = await canvas(128, await sharp(read('logo.png')).resize(128, 128).png().toBuffer());
+    const fullBleedGeometry = await auditStoreIconGeometry(fullBleed);
+    expect(fullBleedGeometry.opaqueBox).toEqual({ x: 0, y: 0, width: 128, height: 128 });
+    expect(fullBleedGeometry.ringMaxAlpha).toBe(255);
+
+    // The pre-glow icon: correct 96x96 padding, but a near-black tile with no silhouette on dark.
+    const noGlow = await canvas(128, await sharp(read('logo.png')).resize(96, 96).png().toBuffer());
+    expect((await auditStoreIconGeometry(noGlow)).paddingMaxAlpha).toBe(0);
+
+    // An opaque white frame hugging the tile: padding is present but an edge was drawn on it.
+    const loud = await canvas(128, await sharp({
+      create: { width: 120, height: 120, channels: 4, background: { r: 255, g: 255, b: 255, alpha: 1 } },
+    }).png().toBuffer());
+    expect((await auditStoreIconGeometry(loud)).ringMaxAlpha).toBe(0);
+    expect((await auditStoreIconGeometry(loud)).paddingMaxAlpha).toBeGreaterThan(GLOW_CEILING);
+  });
 
   it('does not keep a retired, wrong-sized tile that could be uploaded by mistake', () => {
     expect(fs.existsSync(path.join(root, 'store', 'marquee-1280x800.png'))).toBe(false);
