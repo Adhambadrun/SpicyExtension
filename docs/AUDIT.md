@@ -1,4 +1,4 @@
-# BCFlights extension — source audit
+# SpicyExtension repository — source audit
 
 Date: 2026-09-12 (Africa/Cairo). Status: **audit complete for the supplied files; browser-session source direction clarified; authenticated flight-result contract still unavailable.** This is not a completed extension or a successful flight-search integration.
 
@@ -9,9 +9,9 @@ The starting checkout contains exactly two tracked files:
 | File | Findings |
 | --- | --- |
 | `BCF Floating Flight Search Widget.txt` | 2,614 lines, 137,785 bytes. Read in full, including styles, bootstrap/lifecycle, external-search builders, and all four embedded HTML/JavaScript tools. Metadata says version 1.0; the widget/changelog say v12.2. |
-| `agentsearch-mcp-master.zip` | 12 files, 68,580 uncompressed bytes. All source, configuration, documentation, and smoke-test files inspected; the complete dependency lock parsed. Archive comment identifies source commit `c585fcf336bd0aa7f90e05081a13620c3402e9d4`. |
+| `agentsearch-mcp-master.zip` | 12 files, 68,580 uncompressed bytes. All source, configuration, documentation, and smoke-test files read; the complete dependency lock parsed. Archive comment identifies source commit `c585fcf336bd0aa7f90e05081a13620c3402e9d4`. |
 
-At the initial audit, no extension manifest, application, build configuration, BO DOM fixtures, flight-result fixtures, or screenshots were supplied. Three visual references were subsequently attached; see [VISUAL_REFERENCES.md](VISUAL_REFERENCES.md). The user then explicitly selected the local-only source inspector now documented in [INSPECTOR.md](INSPECTOR.md); that is an inspection aid, not the completed flight assistant.
+At the initial audit, no extension manifest, application, build configuration, BO DOM fixtures, flight-result fixtures, or screenshots were supplied. Three visual references were subsequently attached; see [VISUAL_REFERENCES.md](VISUAL_REFERENCES.md). The user then explicitly selected the local-only source capture tool now documented in [CAPTURE.md](CAPTURE.md); that is a diagnostic aid, not the completed flight assistant.
 
 Original-input SHA-256 hashes:
 
@@ -36,13 +36,13 @@ Inside the archive, `lib/tools.js` registers exactly:
 
 Its code contains **no flight-search function, flight request/response schema, flight normalizer, inventory provider, fare model, or aviation test fixture**. One-way/round-trip/multi-city search, mixed cabin, award/cash inventory, passengers, flight stops, flexible travel dates, airline/program filtering, prices, and seat availability are not supported flight capabilities of these tools. A free-text query mentioning those concepts does not make them inventory-search capabilities.
 
-By contrast, the userscript's `buildBasisUrl` (lines 608–616) opens:
+By contrast, the userscript's the search deep-link builder (lines 608–616) opens:
 
 ```text
 https://agentsearch.vercel.app/flights?s=<base64-encoded JSON>
 ```
 
-That is not `agentsearch-mcp.vercel.app` or its upstream `agentsearch-api.vercel.app`. An unauthenticated visit to `/flights` during this audit redirected to `/auth/signin?next=%2Fflights`, displaying Basis branding and email sign-in. No login was attempted and no customer information was transmitted. This confirms a separate user-facing application, **not** a supported API contract or permission to reuse its authenticated endpoints.
+That is not `agentsearch-mcp.vercel.app` or its upstream `agentsearch-api.vercel.app`. An unauthenticated visit to `/flights` during this audit redirected to `/auth/signin?next=%2Fflights`, displaying source branding and email sign-in. No login was attempted and no customer information was transmitted. This confirms a separate user-facing application, **not** a supported API contract or permission to reuse its authenticated endpoints.
 
 ### Consequence
 
@@ -53,7 +53,7 @@ BO lead → normalized flight request → [missing real flight-search implementa
        → validated flight results → flight option viewer
 ```
 
-Do not relabel SERP results as flight options, scrape prices out of snippets, invent a `/searchFlights` route, infer a backend contract from a frontend deep link, or add an unapproved provider. The actual flight application's supported contract or authenticated result structure must be inspected before the adapter and flight-result normalization can be finalized. The user's subsequent browser-session clarification is recorded in section 7.
+Do not relabel SERP results as flight options, scrape prices out of snippets, invent a `/searchFlights` route, infer a backend contract from a frontend deep link, or add an unapproved provider. The actual flight application's supported contract or authenticated result structure must be reviewed before the adapter and flight-result normalization can be finalized. The user's subsequent browser-session clarification is recorded in section 7.
 
 ## 3. Complete MCP archive audit
 
@@ -123,13 +123,13 @@ There is no in-widget flight inventory request or priced-result viewer to reuse.
 | Google Flights / ELR | 460–509 | Protobuf/varint deep-link construction; cabin 1/2/3/4; passenger type 1/2/4; trip type 1/2/3. ELR explicitly appends initial-origin→YVR one day after the final search leg and switches to multi-city. Keep this as an explicit agent action, not a detected itinerary mutation. |
 | Matrix / mixed cabin | 511–586 | Base64 payload; one-way/round-trip/multi-city slices; `pax` string fields; global cabin, per-slice `ext`, return `extRet`; current mixed presets B/W, W/B, F/B, B/F. |
 | PointsYeah | 588–605 | Per-leg link, cabin label, adults/children, symmetric date range, existing bank/program lists. Existing link omits infants; do not claim otherwise. |
-| Basis | 607–616 | Per-leg `tripType: oneway`, `stops` airport arrays, `{value, range: 1}` date, aggregate `pax`, cabin and program list, flags. Frontend URL schema only; does not establish a flight API. |
+| Search deep link | 607–616 | Per-leg `tripType: oneway`, `stops` airport arrays, `{value, range: 1}` date, aggregate `pax`, cabin and program list, flags. Frontend URL schema only; does not establish a flight API. |
 | Fast Search | 619–659 | B→C, W→S, Y→Y, F→F; `JR.` prefix, `/S-O{cabin}`, unpadded day + uppercase month, return leg, and `/S-ARUNK{nextOrigin}` for intermediate discontinuities. |
 | Lead selection/notes | 801–902 | Name/ID selection from visible cards, local per-lead notes, metadata/partial-state warning. Selected-card mode currently changes only the widget, not BO navigation. |
 | Lifecycle/interactions | 742–800; 838–978 | Refresh, delayed hydration discovery, minimize/reopen, clipboard feedback, external actions. Replace reset/rebuild/polling behavior rather than porting it verbatim. |
 | Disclaimers/scripts | 985–1153 | Three categories and six copyable business templates: discounts (UA/DL/AA and other airlines), LFS award and tax language, revenue extra-leg and return language. Keep templates separate from provider fare rules. |
 | PNR helper | 1155–1584 | Searchable eight-step SOP; up to nine passengers; ADT/CNN/INF/INS; passenger references; name commands; 3DOCS; infant remarks; copy actions. |
-| VIP itinerary maker | 1586–2484 | Full manual Sabre parser and enrichment, BCF/LFS branding, light/dark presentation, one-ticket/separate-ticket modes (up to six tickets), manual journey splits, editable fields, screenshot export, editable disclaimer email and rich clipboard. |
+| VIP itinerary maker | 1586–2484 | Full manual Sabre parser and enrichment, the source widget's own branding, light/dark presentation, one-ticket/separate-ticket modes (up to six tickets), manual journey splits, editable fields, screenshot export, editable disclaimer email and rich clipboard. |
 | GK converter | 2486–2613 | Passive segment parser; carrier/number/class/date/airports; selectable GK/HK/BK/YK, seat count, optional padded times; copy commands. |
 
 ### Matrix behavior that must be understood before refactoring
@@ -138,7 +138,7 @@ There is no in-widget flight inventory request or priced-result viewer to reuse.
 - Top-level `options.cabin` can override the BO card cabin. The reader does not currently recover mixed-cabin `ext`/`extRet` or passenger counts from Matrix `pax`.
 - Mixed searches set global cabin to `COACH` and use `+cabin 2` (B), `+cabin premium-coach` (W), `+cabin 1` (F), or `+cabin 3` (Y). For multi-city, all but the final slice receive the outbound selection and the final slice receives the return selection.
 - `itaDateModifier` clamps flexibility to ±2 even when the widget says ±3/5/7. Preserve the provider boundary, but make the effective range explicit rather than silently clamping.
-- Google links do not receive flexibility. Basis always sets `range: 1`. PointsYeah gets the selected symmetric date range; Kayak encodes the requested suffix. Deep-link syntax alone does not prove a provider still supports every value.
+- Google links do not receive flexibility. source always sets `range: 1`. PointsYeah gets the selected symmetric date range; Kayak encodes the requested suffix. Deep-link syntax alone does not prove a provider still supports every value.
 
 ### Open-jaw and Fast Search invariants
 
@@ -215,19 +215,19 @@ This reproduces an audit of the supplied web-data connector, not the requested f
 
 ## 7. User clarification: use the existing Chrome login
 
-After the initial audit, the user clarified that live search should use the agent's existing logged-in Chrome session. Three screenshots were subsequently supplied, resolving the visual-reference input. The user then selected a local-only Chrome inspector to capture the still-missing real result structure.
+After the initial audit, the user clarified that live search should use the agent's existing logged-in Chrome session. Three screenshots were subsequently supplied, resolving the visual-reference input. The user then selected a local-only Chrome capture tool to capture the still-missing real result structure.
 
 Later branding instructions require the repository's `logo.png`, the SpicyTerminal screenshot's near-black/monospace/green-output style, and the supplied SpicyExtension header wordmark before PR/merge. The icon and shared terminal styling are implemented; the exact inline header binary is not accessible in the workspace/remote tree and root `header.png` has been requested. See [BRANDING.md](BRANDING.md) for the current boundary rather than treating interim typography as the supplied graphic.
 
-A session-based Basis adapter can work inside an authorized first-party Basis tab, allowing Chrome/the application to handle its normal authentication. This does **not** require copying cookies, passwords, bearer tokens, or the unrelated MCP proxy secret into the extension. It also does not mean this workspace has access to the user's local browser session.
+A session-based source adapter can work inside an authorized first-party site tab, allowing Chrome/the application to handle its normal authentication. This does **not** require copying cookies, passwords, bearer tokens, or the unrelated MCP proxy secret into the extension. It also does not mean this workspace has access to the user's local browser session.
 
 The confirmed userscript deep link is enough to plan navigation into that tab, but not to validate automatic search execution or parse its results. From this environment, public page retrieval still reaches sign-in. Direct HTTPS retrieval of the public page/client HTML with both Python and curl also failed at TLS connection setup; no authenticated flight markup, client bundles, or result schema were obtained. No authentication bypass was attempted. No claim is made that signed-in searches or result extraction already work.
 
-The updated architecture uses BO → extension messaging → dedicated signed-in Basis search tab → known result extraction/normalization → BO viewer. The supplied web MCP stays out of this flight-data path. See [BROWSER_SESSION.md](BROWSER_SESSION.md) for the concrete boundary and safe sample-collection instructions.
+The updated architecture uses BO → extension messaging → dedicated signed-in source search tab → known result extraction/normalization → BO viewer. The supplied web MCP stays out of this flight-data path. See [BROWSER_SESSION.md](BROWSER_SESSION.md) for the concrete boundary and safe sample-collection instructions.
 
 ## 8. Required next inputs
 
-1. **A redacted actual Basis flight-search result structure:** preferably a successful response JSON body, or copied flight-result card/detail DOM HTML from an authorized signed-in search. An authorized integration repository/docs remains an alternative. Do not send passwords, cookies, tokens, request headers, or unsanitized HAR files. A session can be reused in Chrome without exporting credentials.
+1. **A redacted actual source flight-search result structure:** preferably a successful response JSON body, or copied flight-result card/detail DOM HTML from an authorized signed-in search. An authorized integration repository/docs remains an alternative. Do not send passwords, cookies, tokens, request headers, or unsanitized HAR files. A session can be reused in Chrome without exporting credentials.
 2. **Visual references — received.** The three screenshots guide BO styling, widget parity and flight-shopping density; they are not a source of production flight values.
 3. **For actual BO parser/E2E validation:** representative redacted card/detail markup and Matrix payloads, then an authorized Chrome/BO test workflow. Screenshots alone cannot establish DOM selectors or SPA behavior.
 

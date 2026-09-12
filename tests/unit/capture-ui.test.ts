@@ -1,21 +1,21 @@
 // Structural DOM tests only. JSDOM does not verify Chrome IPC, CSS layout or image decoding.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { openInspector } from '../../extension/src/content/inspector';
-import { DISPOSE_EVENT, INSPECTOR_ROOT_ID } from '../../extension/src/core/policy';
+import { openCapturePanel } from '../../extension/src/content/capture-panel';
+import { DISPOSE_EVENT, CAPTURE_ROOT_ID } from '../../extension/src/core/policy';
 import { parseCapture } from '../../extension/src/core/snapshot';
 
-vi.mock('../../extension/src/styles/inspector.css', () => ({ default: '' }));
+vi.mock('../../extension/src/styles/capture-panel.css', () => ({ default: '' }));
 vi.mock('../../extension/src/styles/terminal.css', () => ({ default: '' }));
 vi.mock('../../extension/assets/icon-128.png', () => ({ default: '/unit-test-logo.png' }));
 
 function shadow(): ShadowRoot {
-  const root = document.getElementById(INSPECTOR_ROOT_ID)?.shadowRoot;
-  if (!root) throw new Error('Inspector was not mounted');
+  const root = document.getElementById(CAPTURE_ROOT_ID)?.shadowRoot;
+  if (!root) throw new Error('Capture panel was not mounted');
   return root;
 }
 function node<T extends Element>(selector: string): T {
   const result = shadow().querySelector<T>(selector);
-  if (!result) throw new Error(`Missing inspector control: ${selector}`);
+  if (!result) throw new Error(`Missing panel control: ${selector}`);
   return result;
 }
 function click(text: string): void {
@@ -40,7 +40,7 @@ beforeEach(() => {
   window.dispatchEvent(new Event(DISPOSE_EVENT));
   document.body.replaceChildren();
   vi.stubGlobal('CSSStyleSheet', class { replaceSync(): void { /* CSS rendering is a browser-test concern. */ } });
-  openInspector();
+  openCapturePanel();
 });
 afterEach(() => {
   window.dispatchEvent(new Event(DISPOSE_EVENT));
@@ -49,7 +49,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('SpicyTerminal inspector structure', () => {
+describe('SpicyTerminal capture panel structure', () => {
   it('starts compact with separate input/output regions and no captured data', () => {
     expect(node<HTMLElement>('.input-pane').getAttribute('aria-label')).toBe('Capture input');
     expect(node<HTMLElement>('.output-pane').getAttribute('aria-label')).toBe('Capture output');
@@ -67,7 +67,7 @@ describe('SpicyTerminal inspector structure', () => {
     editor.value = JSON.stringify(edited);
     editor.dispatchEvent(new Event('input', { bubbles: true }));
     const value = editor.value;
-    const toggle = node<HTMLButtonElement>('[aria-label="Expanded inspector layout"]');
+    const toggle = node<HTMLButtonElement>('[aria-label="Expanded capture layout"]');
     toggle.click();
     expect(toggle.getAttribute('aria-pressed')).toBe('true');
     expect(node<HTMLElement>('.panel').classList.contains('expanded')).toBe(true);
@@ -81,7 +81,7 @@ describe('SpicyTerminal inspector structure', () => {
 
   it('keeps synthetic review consent blocked after changing layout', () => {
     capture();
-    node<HTMLButtonElement>('[aria-label="Expanded inspector layout"]').click();
+    node<HTMLButtonElement>('[aria-label="Expanded capture layout"]').click();
     const consent = node<HTMLInputElement>('.review-check input');
     consent.checked = true;
     consent.dispatchEvent(new Event('change', { bubbles: true }));
@@ -105,12 +105,12 @@ describe('SpicyTerminal inspector structure', () => {
   it('reuses a single instance and clears the view on close', () => {
     capture();
     const editor = node<HTMLTextAreaElement>('.editor');
-    openInspector();
-    expect(document.querySelectorAll(`#${INSPECTOR_ROOT_ID}`)).toHaveLength(1);
+    openCapturePanel();
+    expect(document.querySelectorAll(`#${CAPTURE_ROOT_ID}`)).toHaveLength(1);
     expect(node<HTMLTextAreaElement>('.editor')).toBe(editor);
     node<HTMLButtonElement>('[aria-label="Close and clear capture"]').click();
-    expect(document.getElementById(INSPECTOR_ROOT_ID)).toBeNull();
-    openInspector();
+    expect(document.getElementById(CAPTURE_ROOT_ID)).toBeNull();
+    openCapturePanel();
     expect(node<HTMLTextAreaElement>('.editor').value).toBe('');
   });
 });

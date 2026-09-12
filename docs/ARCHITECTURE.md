@@ -1,6 +1,6 @@
-# BCFlights flight assistant — provisional architecture
+# SpicyExtension flight assistant — provisional architecture
 
-Date: 2026-09-12 (Africa/Cairo). **Full-assistant design notes; the flight assistant is not implemented yet. A local-only source inspector is now implemented as the explicitly approved next step; see [INSPECTOR.md](INSPECTOR.md).** Read [AUDIT.md](AUDIT.md) first. The supplied AgentSearch MCP is a public web-data connector, not a flight engine. The user subsequently clarified that the extension should use the agent's existing signed-in Chrome session. See [BROWSER_SESSION.md](BROWSER_SESSION.md) for that integration path. The design deliberately specifies no imaginary network endpoints or provider flight schemas.
+Date: 2026-09-12 (Africa/Cairo). **Full-assistant design notes; the flight assistant is not implemented yet. A local-only source capture tool is now implemented as the explicitly approved next step; see [CAPTURE.md](CAPTURE.md).** Read [AUDIT.md](AUDIT.md) first. The supplied AgentSearch MCP is a public web-data connector, not a flight engine. The user subsequently clarified that the extension should use the agent's existing signed-in Chrome session. See [BROWSER_SESSION.md](BROWSER_SESSION.md) for that integration path. The design deliberately specifies no imaginary network endpoints or provider flight schemas.
 
 ## 1. Product and integration boundary
 
@@ -16,7 +16,7 @@ BO /leads/{leadId}
   → option cards, filters/sorting, itinerary details, local selection/copy
 ```
 
-An existing external-search deep link is a navigation action, not a flight inventory API. Keep Kayak, Google Flights, ELR/YVR, Matrix, PointsYeah, and Basis available without pretending they supply in-extension results.
+An existing external-search deep link is a navigation action, not a flight inventory API. Keep Kayak, Google Flights, ELR/YVR, Matrix, PointsYeah, and source available without pretending they supply in-extension results.
 
 The viewer must not show invented results while the provider is unavailable. Unsupported capabilities must be explicit. Web-search snippets will never be normalized into bookable flight options.
 
@@ -50,7 +50,7 @@ docs/
 
 Keep parsers and command/link builders pure and independent of Chrome/React. Use one shared viewer implementation for floating and larger modes rather than parallel apps. A Chrome side panel is optional, not a prerequisite for the first release.
 
-Following the user's clarification, the preferred adapter is `BasisBrowserSessionAdapter`: use an extension-managed, visible first-party Basis tab and its normal site login. Add a separate `content/basis/` integration entry point, with only the permissions needed for that confirmed origin. The flight application remains responsible for the real search. Return only validated flight-result data to the BO viewer after the actual source structure is known. Never hijack unrelated user tabs or read/export session cookies.
+Following the user's clarification, the preferred adapter is `SourceBrowserSessionAdapter`: use an extension-managed, visible first-party site tab and its normal site login. Add a separate `content/source/` integration entry point, with only the permissions needed for that confirmed origin. The flight application remains responsible for the real search. Return only validated flight-result data to the BO viewer after the actual source structure is known. Never hijack unrelated user tabs or read/export session cookies.
 
 Only consider a server-side bridge later **if an audited supported integration requires it and the user approves that change**. Reuse any subsequently supplied compatible search functions and validators, but never bundle server-only code, credentials, or environment secrets into the extension.
 
@@ -72,7 +72,7 @@ Incomplete or conflicting fields remain visible and block only actions that requ
 
 ## 4. Result model and data integrity
 
-Finalize provider-to-model mappings only after inspecting actual successful/empty/error responses.
+Finalize provider-to-model mappings only after capturing actual successful/empty/error responses.
 
 - `FlightOption` groups **journeys**, each corresponding to a requested search leg. A journey contains operating flight segments and connections. A round-trip return flight is not an outbound stop.
 - Each segment may include marketing/operating carrier, flight number, airport endpoints, local departure/arrival timestamps and their offset/timezone metadata, aircraft, cabin, booking class, terminals, and sourced elapsed time. Missing values remain absent.
@@ -93,7 +93,7 @@ Preserve all four Matrix mixed presets; for multi-city, expose per-leg overrides
 The UI depends on `FlightSearchService`, not on MCP or provider wire formats. That interface is an internal abstraction, not an invented HTTP API.
 
 - Validate every message at runtime; verify extension sender identity and the expected tab/page origin. Accept named operations, never an arbitrary fetch URL from page data.
-- BO UI/parser scripts run only on `https://bo.bcflights.com/*`; a separate explicitly authorized integration script runs on `https://agentsearch.vercel.app/*` for the signed-in source workflow. Limit any further host permissions to an audited need. Avoid broad wildcard hosts, cookie-reading permission, external messaging, analytics, and remote code.
+- BO UI/parser scripts run only on `https://bo.example.invalid/*`; a separate explicitly authorized integration script runs on `https://agentsearch.vercel.app/*` for the signed-in source workflow. Limit any further host permissions to an audited need. Avoid broad wildcard hosts, cookie-reading permission, external messaging, analytics, and remote code.
 - Network messages contain only required search fields. Provider secrets stay server-side. If authentication is needed, use the provider's approved architecture rather than asking agents to paste BO credentials or session cookies.
 - Assign request IDs and context generations. Abort superseded work; discard responses for a prior lead/search generation even if transport cancellation is unsupported.
 - Debounce edits; search only on an explicit action unless an approved auto-search preference is later specified. Deduplicate identical in-flight requests and bound concurrency.
@@ -118,7 +118,7 @@ Mount one UI root in a Shadow DOM for style isolation. Do not continually rebuil
 
 ## 7. Viewer and interaction design
 
-The initial BO/widget/flight-shopping references establish workflow, toolkit parity and information density. The later **SpicyTerminal** screenshot supersedes the navy/plum palette: near-black chrome, charcoal panes, thin dividers, monospace text, restrained red actions and green output. Use the supplied **SpicyExtension** header artwork for the identity, with `logo.png` as the Chrome-icon source. See [VISUAL_REFERENCES.md](VISUAL_REFERENCES.md) and [BRANDING.md](BRANDING.md). Keep compact floating behavior and offer an explicit larger layout; do not bring back rainbow gradients, oversized pills or glass effects. The inspector now shares these terminal styles across its surfaces, but the exact header file is still pending and the future flight viewer is not implemented or browser-verified.
+The initial BO/widget/flight-shopping references establish workflow, toolkit parity and information density. The later **SpicyTerminal** screenshot supersedes the navy/plum palette: near-black chrome, charcoal panes, thin dividers, monospace text, restrained red actions and green output. Use the supplied **SpicyExtension** header artwork for the identity, with `logo.png` as the Chrome-icon source. See [VISUAL_REFERENCES.md](VISUAL_REFERENCES.md) and [BRANDING.md](BRANDING.md). Keep compact floating behavior and offer an explicit larger layout; do not bring back rainbow gradients, oversized pills or glass effects. The capture panel now shares these terminal styles across its surfaces, but the exact header file is still pending and the future flight viewer is not implemented or browser-verified.
 
 - Small aviation launcher; draggable header/bubble with pointer capture, movement threshold, viewport clamping and persisted non-sensitive position/minimize/size preferences.
 - Compact default viewer with an explicit larger mode, not a full-screen takeover.
@@ -141,10 +141,10 @@ Stops are computed per journey, not `allSegments.length - 1`. Airline, cabin, ti
 Extract pure modules and data rather than retaining large HTML strings or inline handlers:
 
 - Fast Search and ARUNK with exact golden outputs and explicit input validation.
-- Kayak/Google/ELR/Matrix/PointsYeah/Basis builders, preserving known encodings but surfacing unsupported/unknown fields. Open external destinations only after an agent action, with safe schemes and opener isolation.
+- Kayak/Google/ELR/Matrix/PointsYeah/source builders, preserving known encodings but surfacing unsupported/unknown fields. Open external destinations only after an agent action, with safe schemes and opener isolation.
 - Shared Sabre parsing primitives for VIP/GK where semantics actually match. Keep codeshare markers, explicit arrival dates, terminals, equipment and cabin enrichment; improve unsupported-line diagnostics and year handling. Do not apply booking-letter cabin guesses to live backend results as fact.
 - PNR name/DOCS/INFT command generation and searchable SOP as local-only tools. Start new passenger inputs blank, validate required values and age/reference relationships, and keep generated commands reviewable before copy.
-- VIP BCF/LFS branding, editable itinerary, ticket grouping/splitting, per-card cabin/baggage/notes, PNG and rich email copy. Bundle html2canvas locally. Separate unknown data from agent-confirmed baggage/status; clearly identify operator-entered output.
+- VIP the source widget's own branding, editable itinerary, ticket grouping/splitting, per-card cabin/baggage/notes, PNG and rich email copy. Bundle html2canvas locally. Separate unknown data from agent-confirmed baggage/status; clearly identify operator-entered output.
 - Disclaimer templates stored as plain structured content; preserve categories/copy behavior, with business-owner review. Provider fare rules remain separate.
 - Per-lead notes stored in extension-local storage only on agent input, with clear/delete controls. Do not synchronize PII. Offer explicit local migration of an existing current-lead `fx-notes-{id}` value; do not bulk harvest BO storage.
 
@@ -161,10 +161,10 @@ Use strict TypeScript + ESLint, unit tests for pure logic, DOM fixture integrati
 | Dates | Formatting, leap days, month/year rollover, ±1/2/3/5/7 ranges, malformed dates, timezone/date-line indicators and unavailable duration metadata. |
 | Real adapter | Sanitized actual source fixtures; supported search modes, empty results, incomplete responses, backend/tool errors, timeouts, authentication failure, cancellation, cache expiry and duplicate search suppression. **Blocked until real source supplied.** |
 | Lifecycle | pushState/replaceState/traversal, delayed/repeated hydration, same-lead itinerary changes, manual lead selection, leaving leads, stale-response race, extension reload, singleton mount. |
-| Viewer | Every sort/filter, currency/price-basis handling, absent fields, full itinerary details, local selection, source action safety, clipboard success/failure, keyboard/focus behavior. |
+| Viewer | Every sort/filter, currency/price-basis handling, absent fields, full itinerary details, local selection, page action safety, clipboard success/failure, keyboard/focus behavior. |
 | Toolkit | GK optional times/status/seats, unsupported rows; PNR types/DOCS/INFT/references; VIP VI enrichment/codeshare/day shifts/grouping/splits/edits/export/email; all disclaimer templates; notes; drag/minimize persistence. |
 | Packaging/security | Clean install/build from lockfile, manifest/CSP, no remote scripts, no hardcoded secrets, no unsafe data HTML, no test fixtures in production, least-privilege messaging and host permissions. |
-| Live acceptance | Install unpacked build in Chrome; authorized BO leads of each shape; real searches via intended provider; compare displayed prices/cabins/availability against source; inspect console; verify SPA/reload/tools and screenshots. **Not replaceable with fixture-only tests.** |
+| Live acceptance | Install unpacked build in Chrome; authorized BO leads of each shape; real searches via intended provider; compare displayed prices/cabins/availability against the connected site; check the browser console; verify SPA/reload/tools and screenshots. **Not replaceable with fixture-only tests.** |
 
 Preserve the supplied sources as references. Build/package instructions will be added only for a real build; do not publish fictional install steps or claim unavailable E2E checks passed.
 

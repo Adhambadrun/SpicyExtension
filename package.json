@@ -1,9 +1,9 @@
 {
-  "name": "bcf-flight-assistant",
-  "version": "0.0.2",
+  "name": "spicyextension",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "BCFlights source audit and local-only Basis result inspector. The flight assistant is not yet implemented.",
+  "description": "SpicyExtension — local result capture panel for reviewable JSON exports. The flight assistant is not yet implemented.",
   "engines": {
     "node": ">=22.22.2 <23"
   },
@@ -13,10 +13,14 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "check": "npm run icons:check && npm run typecheck && npm run lint && npm test && npm run build",
+    "check": "npm run icons:check && npm run store:check && npm run typecheck && npm run lint && npm test && npm run build",
     "package": "npm run build && node scripts/package.mjs",
     "icons": "node scripts/icons.mjs",
-    "icons:check": "node scripts/icons.mjs --check"
+    "icons:check": "node scripts/icons.mjs --check",
+    "store:gen": "node scripts/store-assets.mjs",
+    "store:check": "node scripts/store-assets.mjs --check",
+    "release:gen": "npm run package && node scripts/release.mjs --sync",
+    "release:check": "npm run package && node scripts/release.mjs --check"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

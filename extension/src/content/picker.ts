@@ -1,4 +1,4 @@
-import { INSPECTOR_ROOT_ID } from '../core/policy';
+import { CAPTURE_ROOT_ID } from '../core/policy';
 import { selectionProblem } from '../core/sanitize';
 
 interface PickerOptions {
@@ -10,7 +10,7 @@ interface PickerOptions {
   describe: (description: string) => void;
 }
 
-/** A pointer-catching overlay prevents the selection click from activating source controls. */
+/** A pointer-catching overlay prevents the selection click from activating page controls. */
 export class AreaPicker {
   private abort: AbortController | null = null;
   private history: Element[] = [];
@@ -69,8 +69,8 @@ export class AreaPicker {
   }
 
   private atPoint(x: number, y: number): void {
-    let target = document.elementsFromPoint(x, y).find((node) => node.id !== INSPECTOR_ROOT_ID &&
-      !node.closest(`#${INSPECTOR_ROOT_ID}`) && node.namespaceURI === 'http://www.w3.org/1999/xhtml');
+    let target = document.elementsFromPoint(x, y).find((node) => node.id !== CAPTURE_ROOT_ID &&
+      !node.closest(`#${CAPTURE_ROOT_ID}`) && node.namespaceURI === 'http://www.w3.org/1999/xhtml');
     // Merely a visual hit area, not a guessed source/card schema. The agent sees and adjusts it.
     for (let i = 0; target && i < 10; i++) {
       const rect = target.getBoundingClientRect();

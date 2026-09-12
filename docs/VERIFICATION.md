@@ -1,51 +1,94 @@
 # Verification record
 
-2026-09-12 (Africa/Cairo) · inspection build 0.0.2 · final header artwork pending
+2026-09-12 (Africa/Cairo) · publish build 1.0.0 · renamed to a single product name · final header artwork pending
+
+## What changed in this build
+
+The extension was rebranded to exactly one name, **SpicyExtension**. The retired working title, its
+vendor prefix and the old tool word were removed from the manifest, the packaged popup/help pages,
+the panel UI, the exported JSON `format` and download filenames, the DOM root id, the internal message
+constants, the build output directory, the ZIP name, the scripts, the tests and every document.
+Renamed files: `extension/src/content/capture-panel.ts`, `extension/src/styles/capture-panel.css`,
+`extension/src/background/capture.ts`, `tests/unit/capture-ui.test.ts`, `tests/e2e/capture.spec.ts`,
+`docs/CAPTURE.md`, `docs/ci/capture.yml.example`. The version moved 0.0.2 → 1.0.0 because this is the
+build intended for upload.
 
 ## Completed locally
 
 | Check | Actual result |
 | --- | --- |
-| Runtime / dependencies | Node 22.22.3 / npm 10.9.8; clean `npm ci --ignore-scripts --no-audit --no-fund` passed with the exact lockfile. |
+| Runtime / dependencies | Node 22.22.3 / npm 10.9.8; clean `npm ci --ignore-scripts --no-audit --no-fund` with the exact lockfile. |
 | `npm run icons:check` | Pass — 16/32/48/128px PNGs match the unchanged repository `logo.png`. |
+| `npm run store:check` | Pass — `store/icon-128.png` and `store/marquee-1280x800.png` match their recorded bytes, exact PNG sizes, and the current `logo.png` hash and manifest version. |
 | `npm run typecheck` | Pass — strict TypeScript compilation. |
 | `npm run lint` | Pass — zero ESLint errors. |
-| `npm test` | Pass — **102 tests across nine files**, including branding, theme contrast and structural UI tests. |
-| `npm run build` | Pass — MV3 bundle with a shared, local SpicyTerminal stylesheet. |
+| `npm test` | Pass — **174 tests across 11 files**, including the new naming, package and store-asset suites. |
+| `npm run naming` coverage | The naming suite scans 60 tracked text files by content and by file name; the two supplied originals are exempt only as received filenames. |
+| `npm run build` | Pass — MV3 bundle in `dist/spicyextension` with the shared local SpicyTerminal stylesheet; permission/network/unsafe-execution build guards intact. |
+| `npm run package` | Pass — 12 runtime files, **50,088-byte** `artifacts/spicyextension-1.0.0.zip`. |
+| `npm run release:check` | Pass — the committed `release/spicyextension-1.0.0.zip` is byte-identical to a fresh build, `manifest.json` is at the archive root, no source/test/fixture/map/lockfile is inside, and the embedded manifest equals the repository manifest. |
+| Determinism | Packaging twice produced the identical SHA-256 below. |
+| ZIP structure | `scripts/bytes.mjs` inflates every entry and verifies its CRC-32 and size; a corrupt or substituted entry fails the check. |
 | `npx playwright test --list` | Pass — **12 browser tests discovered**, not executed. |
-| `npm run package` | Pass — 12 runtime files, **50,122-byte** ZIP. |
-| ZIP verification | Python `ZipFile.testzip()` and exact-entry checks pass. Packaged icons/theme match the source derivatives. No tests, fixtures, environment files, raw source artwork or source maps are shipped. |
-| Determinism | Packaging twice produced identical SHA-256. |
-| Local style preview | Packaged help page, both local stylesheets and logo returned HTTP 200. Preview explicitly labels the pending header and is not a Chrome-runtime test. |
-| Original inputs | Userscript, MCP ZIP and repository logo SHA-256 checks unchanged. |
+| Original inputs | `BCF Floating Flight Search Widget.txt`, `agentsearch-mcp-master.zip` and `logo.png` SHA-256 checks unchanged (byte-for-byte, names included). |
 
-Current inspection ZIP SHA-256:
+Committed publish ZIP SHA-256:
 
 ```text
-17f1fd5758d8c453f45ef889876a77b4ae97290bc8f8ac6c51f4d8f9d23dd866  bcf-basis-inspector-0.0.2.zip
+3f7e9ee38eaf9e65fa78f32195d91200545c0f97d051b2bde4e0c078ed6f958f  release/spicyextension-1.0.0.zip
 ```
 
-The original tests cover exact host/route checks, named messaging, active-tab error handling, bounded subtree capture, sanitization, best-effort redaction and edited JSON/size validation. The new tests verify logo provenance, shared theme loading, text-token contrast, separate INPUT/OUTPUT regions, expansion without lost redactions, retained consent protection and singleton cleanup.
+Also recorded in `release/checksums.txt`; `npm run release:gen` is the only command that may rewrite it,
+and `tests/unit/publish.test.ts` re-verifies it in `npm test`.
 
-JSDOM structural tests stub browser-only stylesheet/image loading and geometry. They are **not** evidence of real Chrome layout, decoded UI images, clipboard access, trusted selection-click interception or extension IPC. Build checks reject unexpected permissions, remote execution/network primitives and unsafe HTML assignment.
+## What the tests do and do not prove
 
-## Publication scope and deferred CI
+The original tests cover exact host/route checks, named messaging, active-tab error handling, bounded
+subtree capture, sanitization, best-effort redaction and edited JSON/size validation. The branding and
+theme tests cover logo provenance, shared theme loading and token contrast. The structural JSDOM tests
+cover separate INPUT/OUTPUT regions, expansion without lost redactions, consent gating and singleton
+cleanup. The new naming test proves the rebrand cannot silently regress, the publish test proves the
+committed ZIP and store images are current, and the release script proves the archive contains exactly
+the built runtime.
 
-The SpicyTerminal styling has been implemented. The separate SpicyExtension header graphic was supplied inline but is not accessible as a workspace file or in the current remote tree. Root `header.png` has been requested so the exact artwork can be embedded. The present text wordmark is explicitly interim. On the renewed PR/merge request, the user approved proceeding with the current inspector with this limitation and the unrun browser tests documented. This is publication of an intermediate inspection tool, not final brand or full-product acceptance.
-
-The unchanged branch push was retried on the renewed request and GitHub again rejected `.github/workflows/inspector.yml` for missing `workflows` permission. The user then explicitly chose **Defer CI and proceed**. The new, never-enabled workflow is now preserved at `docs/ci/inspector.yml.example`, outside GitHub's active workflow directory. Test code and local check commands remain intact. No existing remote workflow, required check or branch protection was removed or bypassed. **No automatic CI or browser-test pass is claimed.** See [the deferred CI instructions](ci/README.md).
+JSDOM structural tests stub browser-only stylesheet/image loading and geometry. They are **not**
+evidence of real Chrome layout, decoded UI images, clipboard access, trusted selection-click
+interception or extension IPC. Build checks reject unexpected permissions, remote execution/network
+primitives and unsafe HTML assignment.
 
 ## Browser verification — blocked, not passed
 
-No Chromium executable is available locally. Earlier Playwright CDN, official Chrome-for-Testing and Debian mirror attempts failed. Repeated downloads have not been presented as test success.
+No Chromium executable is available in this environment, so the 12 Playwright tests were only
+discovered. Earlier Playwright CDN, official Chrome-for-Testing and Debian mirror download attempts
+failed; repeated download attempts are not presented as test success. The suite drives real
+extension-to-content Chrome IPC against an intercepted, clearly synthetic DOM fixture and covers
+terminal colors, logo decoding, expanded columns, narrow-screen stacking and preservation of reviewed
+edits. It never uses login credentials or contacts real inventory. **A capture release is not
+browser-verified until these run green against the unpacked build, and the Web Store checklist in
+[CHROME_WEB_STORE.md](CHROME_WEB_STORE.md) therefore requires manual Chrome testing.**
 
-The built-extension Playwright suite uses real Chrome IPC against an intercepted, clearly synthetic DOM fixture. It now also covers terminal colors, logo decoding, expanded columns, narrow-screen stacking and preservation of reviewed edits. It does not use login credentials or contact real inventory. These 12 tests still need actual browser execution and fixes for any failures before an inspector release is called browser-verified.
+## Publication scope and deferred CI
+
+The SpicyTerminal styling is implemented. The separate header graphic was supplied inline but is not
+accessible as a workspace file or in the current remote tree, so root `header.png` is still requested;
+the popup, help page, panel and the derived store banner all use interim typographic branding. No
+AI-generated artwork was substituted — `npm run store:gen` only composes the unmodified `logo.png` with
+the shared SpicyTerminal tokens.
+
+Publishing GitHub workflow files is still blocked: the connection lacks the `workflows` permission, so
+`.github/workflows/capture.yml` cannot be created. The user previously chose **Defer CI and proceed**;
+the complete workflow is preserved as [`docs/ci/capture.yml.example`](ci/README.md) outside GitHub's
+active workflow directory and does not run. No existing remote workflow, required check or branch
+protection was removed or bypassed, and no CI pass is claimed. This is publication of an intermediate
+capture tool with a rebrand and a committed upload package, not final brand or full-product acceptance.
 
 ## Full-product checks not satisfied
 
-- Actual signed-in Basis result/schema capture and search lifecycle.
+- Actual signed-in result/schema capture and the real search lifecycle on the connected site.
 - Flight adapter and normalized inventory model.
-- BO lead parsing, toolkit migration, flight viewer and full assistant installation.
-- Real-session BO/Basis E2E and the original full-product acceptance criteria.
+- Back-office lead parsing, toolkit migration, flight viewer and full assistant installation.
+- Real-session end-to-end tests and the original full-product acceptance criteria.
 
-The supplied web-MCP smoke test's upstream `fetch failed` result is documented in [AUDIT.md](AUDIT.md). It is not an inspector test or a successful flight search. Branding, an inspector-only PR or passing synthetic-fixture tests are not completion of the full flight assistant.
+The supplied web-MCP smoke test's upstream `fetch failed` result is documented in [AUDIT.md](AUDIT.md).
+It is not a capture test or a successful flight search. A rebrand, a passing packaging check, a
+capture-only PR or passing synthetic-fixture tests are not completion of the full flight assistant.

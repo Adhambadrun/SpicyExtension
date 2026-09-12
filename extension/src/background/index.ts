@@ -1,12 +1,12 @@
-import { OPEN_INSPECTOR, isMessage } from '../core/messages';
-import type { InspectorReply } from '../core/messages';
+import { OPEN_CAPTURE, isMessage } from '../core/messages';
+import type { CaptureReply } from '../core/messages';
 import { isExtensionPage } from '../core/policy';
-import { openActiveInspector } from './inspection';
+import { openActiveCapture } from './capture';
 
-chrome.runtime.onMessage.addListener((message: unknown, sender, respond: (reply: InspectorReply) => void) => {
+chrome.runtime.onMessage.addListener((message: unknown, sender, respond: (reply: CaptureReply) => void) => {
   if (sender.id !== chrome.runtime.id || sender.tab || !isExtensionPage(sender.url, chrome.runtime.id, 'popup.html') ||
-    !isMessage(message, OPEN_INSPECTOR)) return false;
-  void openActiveInspector({
+    !isMessage(message, OPEN_CAPTURE)) return false;
+  void openActiveCapture({
     active: async () => (await chrome.tabs.query({ active: true, currentWindow: true }))[0],
     send: (id, value) => chrome.tabs.sendMessage(id, value),
   }).then(respond);
