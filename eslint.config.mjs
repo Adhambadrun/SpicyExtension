@@ -16,6 +16,11 @@ export default defineConfig([
     languageOptions: { globals: { ...globals.browser, chrome: 'readonly' } },
   },
   {
+    // Runs in Node, but its page.evaluate callbacks are serialized and executed in the browser.
+    files: ['scripts/screenshots.mjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
+  {
     files: ['**/*.ts'],
     languageOptions: { parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname } },
     rules: {

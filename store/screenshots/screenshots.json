@@ -1,0 +1,49 @@
+{
+  "generatedFrom": {
+    "version": "1.0.0",
+    "bundle": "dist/spicyextension/content.js",
+    "pages": [
+      "dist/spicyextension/popup.html",
+      "dist/spicyextension/help.html"
+    ],
+    "fixture": "tests/fixtures/result-page.html"
+  },
+  "note": "Photographs of the built extension UI. The capture panel screenshots run the shipped content bundle through its real BEGIN_CAPTURE listener over the committed synthetic fixture; chrome.runtime.onMessage and chrome.tabs.query are shimmed only because these pages run outside an installed extension. No real account, search or inventory appears, and no artwork is drawn or AI-generated.",
+  "files": {
+    "1-expanded-input-output.png": {
+      "source": "capture panel · expanded two-column layout",
+      "width": 1280,
+      "height": 800,
+      "bytes": 100759,
+      "sha256": "6ddbecbcc2abcfa795ca241aff2e9b3592adf2902af762825cd32d03872b9767"
+    },
+    "2-select-one-result-area.png": {
+      "source": "capture panel · selection overlay",
+      "width": 1280,
+      "height": 800,
+      "bytes": 76122,
+      "sha256": "ccb601da8c91f7c91a6a6685e8f3a9005b56c8ce62840cac3ccac0b84a69ad3b"
+    },
+    "3-review-before-sharing.png": {
+      "source": "capture panel · review state, export still gated",
+      "width": 1280,
+      "height": 800,
+      "bytes": 89672,
+      "sha256": "64efa8b095265ea664bd04f4eee7dc33f32014dda6224d06c711fc6f168979a8"
+    },
+    "4-toolbar-popup.png": {
+      "source": "packaged popup.html",
+      "width": 1280,
+      "height": 800,
+      "bytes": 109310,
+      "sha256": "624f30efee6eb0c2698f425ab0e3b372f9ac346d3edf7605caff94decafb0b02"
+    },
+    "5-instructions-privacy.png": {
+      "source": "packaged help.html",
+      "width": 1280,
+      "height": 800,
+      "bytes": 117184,
+      "sha256": "329f5504e5c88b986f98d6f27656611491953788d5b88680e16ebda093dd30ac"
+    }
+  }
+}

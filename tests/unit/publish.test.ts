@@ -68,10 +68,11 @@ describe('derived store listing images', () => {
   it('are recorded for the current logo and extension version', () => {
     expect(record.generatedFrom['logo.png']).toBe(sha256(read('logo.png')));
     expect(record.generatedFrom.version).toBe(manifest.version);
-    expect(Object.keys(record.files).sort()).toEqual(['icon-128.png', 'marquee-1280x800.png']);
+    expect(Object.keys(record.files).sort()).toEqual(['icon-128.png', 'marquee-1400x560.png', 'promo-440x280.png']);
   });
 
-  it.each([['icon-128.png', 128, 128], ['marquee-1280x800.png', 1280, 800]] as const)(
+  // These are the sizes the Dashboard actually accepts. A 1280x800 "marquee" is not one of them.
+  it.each([['icon-128.png', 128, 128], ['promo-440x280.png', 440, 280], ['marquee-1400x560.png', 1400, 560]] as const)(
     '%s is the exact PNG size Chrome Web Store accepts', async (file, width, height) => {
       const data = read(`store/${file}`);
       expect(sha256(data)).toBe(record.files[file]?.sha256);
@@ -79,9 +80,48 @@ describe('derived store listing images', () => {
       expect(await sharp(data).metadata()).toMatchObject({ format: 'png', width, height });
     });
 
+  it.each(['promo-440x280.png', 'marquee-1400x560.png'] as const)(
+    '%s has no alpha channel, which the promo tile slots reject', async (file) => {
+      expect((await sharp(read(`store/${file}`)).metadata()).hasAlpha).toBe(false);
+    });
+
+  it('does not keep a retired, wrong-sized tile that could be uploaded by mistake', () => {
+    expect(fs.existsSync(path.join(root, 'store', 'marquee-1280x800.png'))).toBe(false);
+  });
+
   it('are committed to the repository instead of being left in a local build directory', () => {
     for (const file of Object.keys(record.files)) expect(fs.existsSync(path.join(root, 'store', file))).toBe(true);
     expect(fs.existsSync(path.join(root, 'artifacts', 'never-committed.marker'))).toBe(false);
     expect(fs.readFileSync(path.join(root, '.gitignore'), 'utf8')).toMatch(/^artifacts\/$/m);
+  });
+});
+
+
+describe('store screenshots taken from the built extension', () => {
+  const record = JSON.parse(read('store/screenshots/screenshots.json').toString('utf8')) as {
+    generatedFrom: { version: string; bundle: string; pages: string[]; fixture: string };
+    files: Record<string, { source: string; width: number; height: number; bytes: number; sha256: string }>;
+  };
+  const files = Object.keys(record.files).sort((a, b) => a.localeCompare(b, 'en'));
+
+  it('provides between one and five screenshots for the current version', () => {
+    expect(record.generatedFrom.version).toBe(manifest.version);
+    expect(files.length).toBeGreaterThanOrEqual(1);
+    expect(files.length).toBeLessThanOrEqual(5); // the Dashboard accepts at most 5
+  });
+
+  it('records that they came from the built bundle and the synthetic fixture, not from artwork', () => {
+    expect(record.generatedFrom.bundle).toBe('dist/spicyextension/content.js');
+    expect(record.generatedFrom.fixture).toBe('tests/fixtures/result-page.html');
+    expect(record.generatedFrom.pages).toContain('dist/spicyextension/popup.html');
+  });
+
+  it.each(files)('%s is a committed 1280x800 PNG with no alpha and matching bytes', async (file) => {
+    const data = read(`store/screenshots/${file}`);
+    expect(sha256(data)).toBe(record.files[file]?.sha256);
+    expect(data.byteLength).toBe(record.files[file]?.bytes);
+    const meta = await sharp(data).metadata();
+    expect(meta).toMatchObject({ format: 'png', width: 1280, height: 800 });
+    expect(meta.hasAlpha).toBe(false);
   });
 });

@@ -48,9 +48,23 @@ and the exported JSON `format` all use it. `tests/unit/naming.test.ts` fails if 
 title, its vendor prefix or the old tool word reappears anywhere in tracked text, including file names.
 
 ```bash
-npm run store:gen     # derive store/icon-128.png and store/marquee-1280x800.png from logo.png
+npm run store:gen     # derive the 128px icon and both promo tiles from logo.png
 npm run store:check   # committed bytes/dimensions/provenance must match logo.png + manifest version
+npm run shots:gen     # photograph the built extension UI into store/screenshots/*.png
+npm run shots:check   # committed screenshots must be current 1280x800 PNGs
 ```
+
+The promo art is generated at the sizes the Dashboard actually accepts — `store/icon-128.png`
+(128x128), `store/promo-440x280.png` (the required small tile) and `store/marquee-1400x560.png`
+(the optional marquee). An earlier `marquee-1280x800.png` was not a real Web Store size; it is
+removed on regeneration so it cannot be uploaded into the wrong slot. Promo tiles are written
+without an alpha channel, because the Dashboard rejects one.
+
+Screenshots are **not** drawn. `scripts/screenshots.mjs` loads the real compiled
+`dist/spicyextension/content.js`, drives it through the shipped `BEGIN_CAPTURE` listener over the
+committed synthetic fixture, also photographs the real packaged popup and help pages, and writes
+exact 1280x800 opaque PNGs. No real account, search or inventory is involved, and nothing is
+hand-drawn or AI-generated.
 
 The banner is composed with sharp from `logo.png` plus the same `terminal.css` tokens, so the store
 artwork and the product UI cannot drift into separate palettes. Copy is width-checked before

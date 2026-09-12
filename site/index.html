@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SpicyExtension — review one result, export it locally as JSON</title>
+<meta name="description" content="A Chrome extension that captures one result area you select, shows it to you as plain JSON, and exports it only after you review it. No uploads, no storage, no background capture.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="assets/icon-128.png" type="image/png">
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="SpicyExtension — one result. Only what you choose.">
+<meta property="og:description" content="Select one result area, review it as JSON, and export it locally. No uploads, no storage, no background capture.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/shot-expanded.png">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand-link" href="/">
+      <img src="assets/icon-128.png" alt="" width="34" height="34">
+      <span>
+        <span class="wordmark"><span class="wordmark-spicy">Spicy</span><span class="wordmark-extension">Extension</span></span>
+        <span class="tag">Local capture</span>
+      </span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#how">How it works</a>
+      <a href="#privacy">Privacy</a>
+      <a class="hide-sm" href="#screenshots">Screenshots</a>
+      <a href="/support.html">Support</a>
+      <a href="https://github.com/Adhambadrun/SpicyExtension" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Local only · no automatic uploads</p>
+      <h1>One result.<br><span class="accent">Only what you choose.</span></h1>
+      <p class="lead">
+        SpicyExtension captures exactly one result area that you select on a page you are already
+        signed in to, shows it to you as plain JSON, and lets you review and edit it before
+        anything is exported. Nothing is uploaded, nothing is stored, and nothing is captured in
+        the background.
+      </p>
+      <div class="cta-row">
+        <a class="button primary" href="https://github.com/Adhambadrun/SpicyExtension/tree/main/release" rel="noopener">Get the package</a>
+        <a class="button secondary" href="#how">See how it works</a>
+      </div>
+      <ul class="pill-row">
+        <li>no cookies or passwords</li>
+        <li>no storage</li>
+        <li>no background capture</li>
+        <li>Manifest V3</li>
+      </ul>
+    </div>
+    <div>
+      <img class="hero-shot" src="assets/shot-expanded.png" width="1280" height="800"
+           alt="The SpicyExtension capture panel in its expanded layout: an INPUT pane with capture controls beside an OUTPUT pane showing the captured JSON, a review confirmation checkbox, and the Copy JSON and Download JSON buttons.">
+    </div>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <p class="label">How it works</p>
+    <h2>You point at one card. You read what was collected. Then you decide.</h2>
+    <p class="section-intro">
+      A screenshot is not machine-readable, and a full page dump collects far more than you meant to
+      share. This sits in between: a single selected area, in plain JSON, that you can edit before it
+      goes anywhere.
+    </p>
+    <div class="grid three">
+      <div class="card">
+        <span class="num">01</span>
+        <h3>Select one area</h3>
+        <p class="muted">
+          Open the capture panel from the toolbar and choose <em>Select a result area</em>. A selection
+          layer outlines what you are pointing at and shows its size. <em>Larger</em> and <em>Smaller</em>,
+          or the arrow keys, adjust the boundary; Escape cancels. That layer also stops the click from
+          activating the website's own buttons.
+        </p>
+      </div>
+      <div class="card">
+        <span class="num">02</span>
+        <h3>Review and redact</h3>
+        <p class="muted">
+          The selected subtree becomes plain JSON in the OUTPUT pane — visible text plus a short
+          allowlist of structural attributes. It is text, never rendered or executed, and you can edit
+          any part of it. Change the capture type or reset your redactions at any point.
+        </p>
+      </div>
+      <div class="card">
+        <span class="num">03</span>
+        <h3>Export it yourself</h3>
+        <p class="muted">
+          <em>Download JSON</em> and <em>Copy JSON</em> stay disabled until you tick the review
+          confirmation, and any further edit clears that confirmation again. The file is written by
+          you, to your machine. Nothing is transmitted.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <p class="label out">Privacy</p>
+    <h2>Built so there is nowhere for your data to go.</h2>
+    <p class="section-intro">
+      This is a design property, not a promise: the extension ships with no network code at all, and
+      its packaged pages set <code>connect-src 'none'</code>, so they cannot make requests even if
+      something tried.
+    </p>
+    <div class="grid two">
+      <div class="card">
+        <h3>What it never touches</h3>
+        <ul class="crosses">
+          <li>Cookies, local storage and session storage</li>
+          <li>Passwords and any form field values</li>
+          <li>Your login — that stays with Chrome and the site</li>
+          <li>Any site other than the one host it declares</li>
+          <li>The page URL's query string and fragment</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What it will not do</h3>
+        <ul class="crosses">
+          <li>Upload, sync or phone home — there is no network client</li>
+          <li>Save captures; memory only, discarded on close</li>
+          <li>Read the page on load or capture in the background</li>
+          <li>Run remote code; everything is bundled at build time</li>
+          <li>Show ads, track you or collect analytics</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top:16px">
+      <div class="card">
+        <h3>Stripped out of every capture</h3>
+        <ul class="crosses">
+          <li>Scripts, styles, frames and embedded media</li>
+          <li>Hidden and aria-hidden subtrees</li>
+          <li>Form controls and their values</li>
+          <li>Link destinations, resource URLs and element IDs</li>
+          <li>Event handlers and arbitrary data attributes</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Kept, so the structure is useful</h3>
+        <ul class="ticks">
+          <li>The visible text of the area you selected</li>
+          <li>Class names, roles and accessibility labels</li>
+          <li>Datetime and test-ID attributes</li>
+          <li>The origin and route only — never the full URL</li>
+          <li>Counts of what was captured, omitted and redacted</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px">
+      <p class="callout">
+        <strong>Redaction is best effort, not complete anonymization.</strong>
+        Email addresses, URLs, bearer tokens and common credential patterns in the visible text are
+        replaced automatically — but names, booking references, phone numbers or unusual identifiers
+        can survive. That is exactly why export stays locked until you confirm you have read the JSON.
+        Once a file is downloaded or copied, it is yours to look after; the extension cannot reach it
+        afterwards.
+      </p>
+    </div>
+
+    <p style="margin-top:24px" class="muted">
+      Full detail is in the <a href="/privacy.html">privacy policy</a>.
+    </p>
+  </div>
+</section>
+
+<section id="permissions">
+  <div class="wrap">
+    <p class="label">Permissions</p>
+    <h2>One host. Nothing else requested.</h2>
+    <p class="section-intro">
+      Chrome asks for a reason behind every permission. Here is the complete list, which you can
+      check against <code>manifest.json</code> in the public repository.
+    </p>
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>Permission</th><th>Status</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>host_permissions</code><br><code>https://agentsearch.vercel.app/*</code></td>
+          <td>Requested</td>
+          <td>The only site this extension runs on. A dormant listener on its results routes lets the
+              toolbar button open the capture panel in the tab you are already signed in to.</td>
+        </tr>
+        <tr><td><code>tabs</code></td><td>Not requested</td><td>Not needed. The popup only checks whether the active tab is a supported page.</td></tr>
+        <tr><td><code>storage</code></td><td>Not requested</td><td>Nothing is ever persisted.</td></tr>
+        <tr><td><code>cookies</code></td><td>Not requested</td><td>Authentication is never read or copied.</td></tr>
+        <tr><td><code>downloads</code></td><td>Not requested</td><td>Exports use an ordinary link you click yourself.</td></tr>
+        <tr><td><code>scripting</code></td><td>Not requested</td><td>No code is injected into arbitrary pages.</td></tr>
+        <tr><td><code>web_accessible_resources</code></td><td>None</td><td>No extension resource is exposed to web pages.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section id="screenshots">
+  <div class="wrap">
+    <p class="label">Screenshots</p>
+    <h2>The actual interface.</h2>
+    <p class="section-intro">
+      These are unretouched captures of the built extension running against a synthetic test page —
+      no real account, search or inventory appears in them.
+    </p>
+    <div class="shots">
+      <div class="shot"><figure>
+        <img src="assets/shot-select.png" width="1280" height="800" loading="lazy"
+             alt="The selection overlay outlining an entire result card, with the panel reporting the element type and its pixel size.">
+        <figcaption>Selecting one area. The outline shows exactly what will be captured.</figcaption>
+      </figure></div>
+      <div class="shot"><figure>
+        <img src="assets/shot-review.png" width="1280" height="800" loading="lazy"
+             alt="The review step: captured JSON in an editable field, an unchecked review confirmation, and the Copy JSON and Download JSON buttons greyed out.">
+        <figcaption>Review before sharing. Export stays disabled until you confirm.</figcaption>
+      </figure></div>
+      <div class="shot"><figure>
+        <img src="assets/shot-expanded.png" width="1280" height="800" loading="lazy"
+             alt="The expanded two-column layout with the INPUT pane beside the OUTPUT pane, the review box ticked and both export buttons now enabled.">
+        <figcaption>Expanded INPUT / OUTPUT layout for wide screens.</figcaption>
+      </figure></div>
+      <div class="shot"><figure>
+        <img src="assets/shot-popup.png" width="1280" height="800" loading="lazy"
+             alt="The toolbar popup showing the connected route, an Open capture panel button, and a list of privacy guarantees.">
+        <figcaption>The toolbar popup, with its privacy summary in plain sight.</figcaption>
+      </figure></div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <p class="label">Install</p>
+    <h2>Verify the build yourself.</h2>
+    <p class="section-intro">
+      The extension is open source. The exact package that gets uploaded to the Chrome Web Store is
+      committed to the repository alongside its SHA-256 checksum, so you can confirm that what ships
+      matches the code.
+    </p>
+    <div class="grid two">
+      <div class="card">
+        <h3>From the Chrome Web Store</h3>
+        <p class="muted">
+          The listing is being prepared. Until it is live, use the packaged build below, or watch the
+          repository for the published link.
+        </p>
+      </div>
+      <div class="card">
+        <h3>From source</h3>
+        <p class="muted">
+          Clone the repository, run <code>npm ci</code> then <code>npm run check</code>, and load
+          <code>dist/spicyextension</code> through <em>Load unpacked</em> at
+          <code>chrome://extensions</code> with Developer mode enabled.
+        </p>
+      </div>
+    </div>
+    <p style="margin-top:24px">
+      <a class="button secondary" href="https://github.com/Adhambadrun/SpicyExtension" rel="noopener">View the source on GitHub</a>
+    </p>
+  </div>
+</section>
+
+<section id="scope" style="border-bottom:none">
+  <div class="wrap">
+    <p class="label">Scope</p>
+    <h2>What this version is — and what it is not.</h2>
+    <div class="card">
+      <p>
+        Version 1.0.0 is a local capture tool. It records the structure of one result area you
+        select, so that structure can be studied. It is deliberately narrow, and the extension's own
+        help page states the same thing rather than implying features that do not exist yet.
+      </p>
+      <p class="muted" style="margin-bottom:0">
+        It is <strong>not</strong> a screenshot tool, and it does <strong>not</strong> search, price,
+        book or supply flight inventory. It reads no API and replays no authenticated request.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <span class="wordmark" style="font-size:16px"><span class="wordmark-spicy">Spicy</span><span class="wordmark-extension">Extension</span></span>
+      <p style="margin:6px 0 0">Version 1.0.0 · local capture, reviewed exports.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="/privacy.html">Privacy policy</a>
+      <a href="/support.html">Support</a>
+      <a href="https://github.com/Adhambadrun/SpicyExtension" rel="noopener">GitHub</a>
+      <a href="https://github.com/Adhambadrun/SpicyExtension/issues" rel="noopener">Report an issue</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

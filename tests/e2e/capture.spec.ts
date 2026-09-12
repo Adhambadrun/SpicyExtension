@@ -21,9 +21,19 @@ test.beforeAll(async () => {
     ...(executablePath ? { executablePath } : { channel: 'chromium' }),
     headless: true,
     viewport: { width: 1280, height: 920 },
-    args: [`--disable-extensions-except=${extension}`, `--load-extension=${extension}`],
+    args: [
+      `--disable-extensions-except=${extension}`,
+      `--load-extension=${extension}`,
+      // Branded Chrome 137+ ignores --load-extension unless this feature is disabled. Chromium and
+      // Chrome for Testing builds do not need it; a headless_shell build cannot load extensions at
+      // all, because it has no extensions subsystem. Use Chromium or Chrome for Testing here.
+      '--disable-features=DisableLoadExtensionCommandLineSwitch',
+    ],
   });
-  worker = context.serviceWorkers()[0] ?? await context.waitForEvent('serviceworker');
+  worker = context.serviceWorkers()[0] ?? await context.waitForEvent('serviceworker').catch(() => {
+    throw new Error('The unpacked MV3 service worker never started. Run this suite against Chromium '
+      + 'or Chrome for Testing (CHROMIUM_PATH=/path/to/chrome). A headless_shell build cannot load extensions.');
+  });
   extensionId = worker.url().split('/')[2] ?? '';
   if (!extensionId) throw new Error('The unpacked MV3 worker did not load.');
   const fixture = await fs.readFile('tests/fixtures/result-page.html', 'utf8');

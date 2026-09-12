@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy policy — SpicyExtension</title>
+<meta name="description" content="The SpicyExtension privacy policy: no data is collected, transmitted, sold or shared. Captures stay in memory on your own machine until you export them yourself.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="assets/icon-128.png" type="image/png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand-link" href="/">
+      <img src="assets/icon-128.png" alt="" width="34" height="34">
+      <span>
+        <span class="wordmark"><span class="wordmark-spicy">Spicy</span><span class="wordmark-extension">Extension</span></span>
+        <span class="tag">Local capture</span>
+      </span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/">Home</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/support.html">Support</a>
+      <a href="https://github.com/Adhambadrun/SpicyExtension" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="doc">
+<div class="wrap">
+
+  <h1>Privacy policy</h1>
+  <p class="updated">For the SpicyExtension Chrome extension, version 1.0.0 · Last updated 12 September 2026</p>
+
+  <div class="panel">
+    <p style="margin:0"><strong>The short version.</strong>
+      SpicyExtension does not collect, transmit, sell or share any data. It has no server, no
+      analytics and no network code of any kind. Everything it produces is created on your own
+      machine, held in memory, and saved only when you choose to save it.</p>
+  </div>
+
+  <h2>1. Who this covers</h2>
+  <p>
+    This policy applies to the SpicyExtension browser extension ("the extension") and to this
+    website. The extension is open source; its complete source code is published at
+    <a href="https://github.com/Adhambadrun/SpicyExtension" rel="noopener">github.com/Adhambadrun/SpicyExtension</a>,
+    so every statement below can be independently verified rather than taken on trust.
+  </p>
+
+  <h2>2. What the extension collects</h2>
+  <p><strong>Nothing is collected by the developer.</strong> No personal information, no usage
+    statistics, no crash reports, no identifiers and no analytics are gathered, received or stored by
+    us. There is no account to create and no data to delete, because none is ever sent.</p>
+  <p>
+    When you explicitly start a capture, the extension reads part of the page you are viewing and
+    turns it into JSON <em>on your own device</em>. That JSON is shown to you and held in the
+    panel's memory. It is not transmitted anywhere. It becomes a file only if you press the download
+    button, or text on your clipboard if you press copy.
+  </p>
+
+  <h3>What a capture contains</h3>
+  <ul>
+    <li>The visible text of the single page area you selected.</li>
+    <li>A short allowlist of structural attributes: class names, roles, accessibility labels, datetime values and test IDs.</li>
+    <li>The origin and route of the page (for example <code>/flights</code>) — never the query string or fragment.</li>
+    <li>A timestamp and counts of how many elements were captured, omitted or redacted.</li>
+  </ul>
+
+  <h3>What is excluded from a capture</h3>
+  <ul>
+    <li>Scripts, styles, frames and embedded media.</li>
+    <li>Hidden, inert and aria-hidden subtrees.</li>
+    <li>Form controls and their values — field values are never read.</li>
+    <li>Link destinations, resource URLs, element IDs, event handlers and arbitrary data attributes.</li>
+    <li>Email addresses, URLs, bearer tokens and common credential patterns found in visible text are automatically replaced.</li>
+  </ul>
+
+  <h2>3. What the extension never accesses</h2>
+  <ul>
+    <li><strong>Cookies and authentication.</strong> The extension has no cookies permission and never reads, copies or transmits your login. Signing in happens entirely between you, Chrome and the website.</li>
+    <li><strong>Local and session storage.</strong> Never read.</li>
+    <li><strong>Passwords and form input.</strong> Never read.</li>
+    <li><strong>Other websites.</strong> The extension declares a single host permission, <code>https://agentsearch.vercel.app/*</code>, and has no access to any other site, to your browsing history, to your tabs in general, to your bookmarks, or to other browser profiles.</li>
+    <li><strong>Your page, unprompted.</strong> The content script stays dormant until you press the capture button. It does not read the page on load and never captures in the background.</li>
+  </ul>
+
+  <h2>4. Data storage and retention</h2>
+  <p>
+    The extension stores nothing. It requests no <code>storage</code> permission and writes to no
+    database, no cloud service and no synced profile data. A capture exists only in the panel's
+    memory and is discarded as soon as you clear it, close the panel, reload the page or navigate
+    away.
+  </p>
+  <p>
+    Files you download and text you copy are ordinary files and clipboard contents under your own
+    control. The extension cannot read, retrieve or erase them afterwards, so please store and share
+    them carefully.
+  </p>
+
+  <h2>5. Data transmission and third parties</h2>
+  <p>
+    The extension contains no network client. There is no <code>fetch</code>, no
+    <code>XMLHttpRequest</code>, no WebSocket, no <code>EventSource</code> and no
+    <code>sendBeacon</code> in the shipped code — the build fails if any of them appears. Its
+    packaged pages are additionally locked down with the content security policy
+    <code>connect-src 'none'</code>, which forbids outbound connections at the browser level.
+  </p>
+  <p>
+    As a result: <strong>no data is sold, rented, traded, shared with third parties, or used for
+    advertising, credit assessment, profiling or training.</strong> There are no third-party services,
+    SDKs, trackers, remote fonts or remotely loaded code in the extension. All code is bundled at
+    build time.
+  </p>
+  <p>
+    The website you are reading serves only static files and sets no cookies. Our hosting provider
+    may keep standard server logs, which we do not use to identify anyone.
+  </p>
+
+  <h2>6. Limits you should know about</h2>
+  <div class="panel" style="margin-bottom:14px">
+    <p class="callout" style="margin:0">
+      <strong>Automatic redaction is best effort, not complete anonymization.</strong>
+      Recognizable email addresses, URLs and common credential patterns are replaced, but personal
+      information in ordinary visible text — names, booking references, phone numbers or unusual
+      identifiers — can remain in a capture. Review the JSON before you export it, and again before
+      you share it with anyone. The export buttons are deliberately disabled until you confirm you
+      have done so.
+    </p>
+  </div>
+  <p>
+    Content inside shadow roots is not included, and offscreen content is not necessarily excluded;
+    the extension is not a visual screenshot tool or a complete visibility audit.
+  </p>
+
+  <h2>7. Children</h2>
+  <p>
+    The extension is a developer utility, is not directed at children, and knowingly collects no
+    information from anyone, including children.
+  </p>
+
+  <h2>8. Your rights</h2>
+  <p>
+    Because we never receive your data, there is nothing for us to disclose, correct, export or
+    delete on request. You remain in full control: uninstalling the extension removes it entirely,
+    and any files you exported are deleted the same way you delete any other file on your computer.
+  </p>
+
+  <h2>9. Changes to this policy</h2>
+  <p>
+    If this policy changes, the revised version will be published on this page with a new date, and
+    the change will be visible in the public repository's history. Material changes to how the
+    extension handles data would also require a new extension version and a fresh Chrome Web Store
+    review.
+  </p>
+
+  <h2>10. Contact</h2>
+  <p>
+    Questions, concerns or security reports are welcome through the public issue tracker at
+    <a href="https://github.com/Adhambadrun/SpicyExtension/issues" rel="noopener">github.com/Adhambadrun/SpicyExtension/issues</a>,
+    or via the contact address listed on the <a href="/support.html">support page</a>.
+  </p>
+
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <span class="wordmark" style="font-size:16px"><span class="wordmark-spicy">Spicy</span><span class="wordmark-extension">Extension</span></span>
+      <p style="margin:6px 0 0">Version 1.0.0 · local capture, reviewed exports.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="/">Home</a>
+      <a href="/privacy.html">Privacy policy</a>
+      <a href="/support.html">Support</a>
+      <a href="https://github.com/Adhambadrun/SpicyExtension" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

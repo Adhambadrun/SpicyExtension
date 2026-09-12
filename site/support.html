@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Support — SpicyExtension</title>
+<meta name="description" content="Help for SpicyExtension: installation, how to capture a result, troubleshooting the most common problems, and how to report an issue.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="assets/icon-128.png" type="image/png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand-link" href="/">
+      <img src="assets/icon-128.png" alt="" width="34" height="34">
+      <span>
+        <span class="wordmark"><span class="wordmark-spicy">Spicy</span><span class="wordmark-extension">Extension</span></span>
+        <span class="tag">Local capture</span>
+      </span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/">Home</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/support.html">Support</a>
+      <a href="https://github.com/Adhambadrun/SpicyExtension" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="doc">
+<div class="wrap">
+
+  <h1>Support</h1>
+  <p class="updated">SpicyExtension 1.0.0 · questions, problems and how to reach a human</p>
+
+  <div class="panel">
+    <p style="margin:0">
+      <strong>Need help or found a bug?</strong>
+      Open an issue at
+      <a href="https://github.com/Adhambadrun/SpicyExtension/issues" rel="noopener">github.com/Adhambadrun/SpicyExtension/issues</a>.
+      Please include your Chrome version, the extension version, and what you expected to happen.
+      <strong>Never paste cookies, authorization headers, passwords, API keys, account data or an
+      unsanitized HAR file</strong> into an issue — none of that is needed to diagnose a problem here.
+    </p>
+  </div>
+
+  <h2>Installing</h2>
+  <ol>
+    <li>Download the packaged build from the repository's <code>release/</code> folder and extract it, or build it yourself with <code>npm ci</code> and <code>npm run build</code>.</li>
+    <li>Open <code>chrome://extensions</code> and turn on <strong>Developer mode</strong>.</li>
+    <li>Choose <strong>Load unpacked</strong> and select the folder that contains <code>manifest.json</code> (when building from source, that is <code>dist/spicyextension</code>).</li>
+    <li>Use the same Chrome profile you normally sign in with. The extension cannot move a login between profiles or devices.</li>
+    <li><strong>Reload the site tab after installing or reloading the extension.</strong> Chrome does not inject a newly installed content script into pages that are already open.</li>
+  </ol>
+
+  <h2>Capturing a result</h2>
+  <ol>
+    <li>Sign in on the connected site yourself and open a results page.</li>
+    <li>Click the toolbar icon, then <strong>Open capture panel</strong>.</li>
+    <li>Choose <strong>Select a result area</strong> and move the pointer over one card. Check the outline and the size readout.</li>
+    <li>Adjust with <strong>Larger</strong> / <strong>Smaller</strong> or the <kbd>↑</kbd> / <kbd>↓</kbd> keys. Click or press <kbd>Enter</kbd> to capture; <kbd>Esc</kbd> cancels.</li>
+    <li>Read the JSON and remove anything private. Tick the review confirmation, then <strong>Download JSON</strong>.</li>
+    <li>To capture itinerary details, expand them on the site first, select that area, and set the capture type to <em>Expanded itinerary details</em>.</li>
+  </ol>
+
+  <h2>Troubleshooting</h2>
+
+  <h3>"Open capture panel" is greyed out</h3>
+  <p>The active tab has to be a supported results page on the connected site. Sign-in and account pages are deliberately excluded. Switch to the results tab and reopen the popup.</p>
+
+  <h3>Nothing happens, or the page does not acknowledge the panel</h3>
+  <p>Reload the site tab. After an extension is installed or reloaded, Chrome does not place the new content script into tabs that were already open.</p>
+
+  <h3>Only a small fragment was captured</h3>
+  <p>Press <strong>Larger</strong> (or <kbd>↑</kbd>) until the outline covers the whole card, then capture again. Pointing at a table cell selects that cell; widening moves the selection to its container.</p>
+
+  <h3>The capture has no visible text</h3>
+  <p>Select the enclosing card rather than a logo, icon, hidden element or form field. Images and form controls are intentionally excluded.</p>
+
+  <h3>The export buttons stay disabled</h3>
+  <p>Tick the review confirmation. Any edit to the JSON, a change of capture type, or resizing the selection clears it again, because each of those produces something new for you to check. If the status line reports invalid JSON, correct it or press <strong>Reset redactions</strong>.</p>
+
+  <h3>Copy JSON does not work</h3>
+  <p>Chrome may withhold clipboard access in some contexts. Use <strong>Download JSON</strong> instead and look in your downloads list.</p>
+
+  <h3>The panel is covering the card I want</h3>
+  <p>Drag the panel by its header, or focus the move handle and use the arrow keys. The panel always stays within the viewport.</p>
+
+  <h3>Clicking during selection activated something on the page</h3>
+  <p>It should not — the selection layer intercepts the click. If you can reproduce this, please report it with the steps you took; that would be a genuine bug.</p>
+
+  <h2>Frequently asked</h2>
+
+  <h3>Does it upload my captures anywhere?</h3>
+  <p>No. The extension contains no network client at all, and its pages are locked down with <code>connect-src 'none'</code>. Files reach other people only if you send them yourself. See the <a href="/privacy.html">privacy policy</a>.</p>
+
+  <h3>Can it see my password or my login?</h3>
+  <p>No. It has no cookies permission, never reads form values, and never copies authentication. Signing in stays entirely between you, Chrome and the website.</p>
+
+  <h3>Is my capture fully anonymous?</h3>
+  <p>No, and it is important not to assume so. Automatic redaction handles email addresses, URLs and common credential patterns, but names, booking references and other personal text can remain. Read the JSON before you export it, and again before you share it.</p>
+
+  <h3>Why does it only work on one site?</h3>
+  <p>Because it only asks for one host permission. Narrow access is the point: the extension cannot run anywhere it has not declared, and you can confirm that in <code>manifest.json</code>.</p>
+
+  <h3>Does it search, price or book flights?</h3>
+  <p>No. Version 1.0.0 is a local capture tool only. It reads no API, replays no authenticated request, and supplies no inventory or pricing.</p>
+
+  <h3>How do I remove it?</h3>
+  <p>Open <code>chrome://extensions</code> and choose Remove. Since nothing is stored, there is no leftover data — only the files you chose to download, which you can delete as usual.</p>
+
+  <h2>Reporting a security issue</h2>
+  <p>
+    Please report suspected security problems through the
+    <a href="https://github.com/Adhambadrun/SpicyExtension/issues" rel="noopener">issue tracker</a>,
+    with enough detail to reproduce the behaviour. Since the extension is open source, a pull request
+    is welcome too.
+  </p>
+
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <span class="wordmark" style="font-size:16px"><span class="wordmark-spicy">Spicy</span><span class="wordmark-extension">Extension</span></span>
+      <p style="margin:6px 0 0">Version 1.0.0 · local capture, reviewed exports.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="/">Home</a>
+      <a href="/privacy.html">Privacy policy</a>
+      <a href="/support.html">Support</a>
+      <a href="https://github.com/Adhambadrun/SpicyExtension" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
