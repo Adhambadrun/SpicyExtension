@@ -155,9 +155,30 @@ Upload exactly this file:
 store/icon-128.png
 ```
 
-It is a 128×128 PNG with 96×96 of artwork centred inside transparent padding, which is
-what [Chrome's image guidelines](https://developer.chrome.com/docs/webstore/images#icons)
-ask for: no border drawn on the image, and readable on both light and dark backgrounds.
+It is a 128×128 PNG holding 96×96 of untouched logo artwork centred in 16 pixels of
+transparent padding on every side, which is what
+[Chrome's image guidelines](https://developer.chrome.com/docs/webstore/images#icons)
+specify for a square icon. Against the same page's design advice it does three more things:
+
+| Guideline | How the icon meets it |
+| --- | --- |
+| “Don’t put an edge around the 128×128 image; the UI might add edges.” | The outer 4 pixels of the canvas are forced fully transparent, so nothing competes with an edge the store adds itself. |
+| “The image should work well on both light and dark backgrounds.” | The brand tile is near-black and, on its own, has **no** silhouette on a dark theme. The guideline’s own remedy is applied: a subtle white outer glow, blurred into the padding band at a peak of 56/255 alpha. |
+| “Avoid large drop shadows; the UI might add shadows.” | The halo is a tight 3.2px gaussian, not a cast shadow, and it is capped at 140/255 alpha by the generator. |
+
+Measured on the composited file, four pixels outside the tile:
+
+| Store background | Before the glow | After the glow |
+| --- | --- | --- |
+| `#ffffff` light | 1.000:1 | 1.000:1 — the glow is invisible on light |
+| `#f1f3f4` grey | 1.000:1 | 1.006:1 — still imperceptible |
+| `#202124` dark | 1.000:1 — the tile *was* the background | 1.172:1 — readable edge |
+| `#0b0b0b` near-black | 1.000:1 | 1.113:1 |
+
+`npm run store:check` verifies all of that instead of trusting it: the exact 128×128 PNG,
+the 96×96 fully opaque box at `+16,+16`, an outer ring of alpha 0, and a glow that is
+present but under the ceiling. A full-bleed logo, a painted-on border or a missing glow all
+fail the build.
 
 If you still get a size error, you almost certainly picked a different file. Confirm
 before uploading:
@@ -166,6 +187,11 @@ before uploading:
 node -e "const b=require('fs').readFileSync('store/icon-128.png');console.log(b.readUInt32BE(16)+'x'+b.readUInt32BE(20))"
 # → 128x128
 ```
+
+The artwork itself is never resized, cropped, redrawn or recoloured — only the glow is
+added *around* it, inside the padding Chrome asks for. The signature in the lower right of
+the logo is kept on purpose: `logo.png` is the brand source of truth and the in-product
+icons carry the same complete artwork.
 
 Do **not** upload `logo.png` (1254×1254) or any of the `extension/assets/icon-*.png`
 files — those are the in-product icons, and only the 128 is a store icon.
@@ -320,7 +346,7 @@ First reviews commonly take a few days; items with host permissions sometimes ta
 ### Before you press submit
 
 1. `npm ci --ignore-scripts --no-audit --no-fund && npm run check` — icons, store art,
-   screenshots, strict TypeScript, ESLint, 194 tests and the MV3 build.
+   screenshots, strict TypeScript, ESLint, 198 tests and the MV3 build.
 2. `npm run release:check` — the committed ZIP equals a fresh build, runtime files only.
 3. **Load `dist/spicyextension` unpacked in real Chrome** and re-test the capture, review
    and export flow, the popup on a non-matching tab, and the packaged help page. This is

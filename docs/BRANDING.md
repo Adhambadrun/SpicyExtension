@@ -60,6 +60,17 @@ The promo art is generated at the sizes the Dashboard actually accepts — `stor
 removed on regeneration so it cannot be uploaded into the wrong slot. Promo tiles are written
 without an alpha channel, because the Dashboard rejects one.
 
+The store icon follows [Chrome's image
+guidelines](https://developer.chrome.com/docs/webstore/images#icons) exactly: 96x96 of the
+unmodified logo centred in 16px of transparent padding on a 128x128 PNG. Because the brand tile
+is near-black, it had no silhouette at all on a dark store background, so the guide's own remedy
+is applied — a subtle white outer glow, blurred into the padding band and hard-clipped so the
+outermost 4 pixels stay fully transparent. Nothing is added to the artwork itself and no border is
+drawn on the canvas, which the guidelines also forbid. `npm run store:check` measures the result
+(`auditStoreIconGeometry` in `scripts/store-assets.mjs`) and fails on a full-bleed icon, a painted
+edge, a missing glow or a glow above its ceiling, so the layout cannot drift into a rejected
+upload. `site/assets/icon-128.png` is a copy of this file and is refreshed with it.
+
 Screenshots are **not** drawn. `scripts/screenshots.mjs` loads the real compiled
 `dist/spicyextension/content.js`, drives it through the shipped `BEGIN_CAPTURE` listener over the
 committed synthetic fixture, also photographs the real packaged popup and help pages, and writes

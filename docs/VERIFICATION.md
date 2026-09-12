@@ -20,10 +20,11 @@ build intended for upload.
 | Runtime / dependencies | Node 22.22.3 / npm 10.9.8; clean `npm ci --ignore-scripts --no-audit --no-fund` with the exact lockfile. |
 | `npm run icons:check` | Pass — 16/32/48/128px PNGs match the unchanged repository `logo.png`. |
 | `npm run store:check` | Pass — `store/icon-128.png`, `store/promo-440x280.png` and `store/marquee-1400x560.png` match their recorded bytes, the exact PNG sizes the Dashboard accepts, and the current `logo.png` hash and manifest version. The promo tiles are verified to carry no alpha channel. |
+| Store icon guideline audit | Pass — `store/icon-128.png` measures a 96x96 fully opaque artwork box at `+16,+16` inside a 128x128 PNG, an outer 4px ring at alpha 0 and a padding glow of 56/255, matching Chrome's image guidelines. Composited four pixels outside the tile the silhouette contrast is 1.000:1 on `#ffffff` (glow invisible on light), 1.006:1 on `#f1f3f4`, and 1.172:1 on `#202124` against 1.000:1 before the glow. The gate was verified to reject a full-bleed logo, a painted-on edge and a missing glow, each with its own error, and to pass again once the real file was restored. Four tests in `tests/unit/publish.test.ts` pin the geometry and those three failure shapes. |
 | `npm run shots:check` | Pass — five committed 1280x800 opaque PNG screenshots, current for this version. |
 | `npm run typecheck` | Pass — strict TypeScript compilation. |
 | `npm run lint` | Pass — zero ESLint errors. |
-| `npm test` | Pass — **187 tests across 11 files**, including the naming, package, store-asset and screenshot-provenance suites. |
+| `npm test` | Pass — **198 tests across 11 files**, including the naming, package, store-asset and screenshot-provenance suites. |
 | `npm run naming` coverage | The naming suite scans 60 tracked text files by content and by file name; the two supplied originals are exempt only as received filenames. |
 | `npm run build` | Pass — MV3 bundle in `dist/spicyextension` with the shared local SpicyTerminal stylesheet; permission/network/unsafe-execution build guards intact. |
 | `npm run package` | Pass — 12 runtime files, **50,088-byte** `artifacts/spicyextension-1.0.0.zip`. |
