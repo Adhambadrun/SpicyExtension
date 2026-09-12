@@ -32,8 +32,12 @@ npm ci --ignore-scripts --no-audit --no-fund
 npm run check                 # strict TypeScript, ESLint, unit tests, MV3 build
 npx playwright install chromium
 npm run test:e2e              # built, unpacked extension against a local synthetic DOM fixture
-npm run package              # artifacts/bcf-basis-inspector-0.0.2.zip
+npm run package               # artifacts/bcf-basis-inspector-0.0.2.zip
 ```
+
+### Chrome Web Store upload
+
+Upload the versioned `artifacts/bcf-basis-inspector-0.0.2.zip` produced by `npm run package` to the Chrome Web Store Developer Dashboard. The archive contains `manifest.json` at its root and no source, test, dependency, or private files. Chrome Web Store accepts the ZIP package; a `.crx` is for direct/local installation and is not the Web Store publishing format. Build artifacts remain intentionally untracked and should be regenerated for each release.
 
 On Linux, Playwright may need `npx playwright install --with-deps chromium`. A locally installed compatible Chromium can be selected with `CHROMIUM_PATH=/path/to/chromium npm run test:e2e`. The package is deterministic for the same source/dependency/runtime versions. Generated browser profiles, test reports and ZIP files stay out of Git.
 
